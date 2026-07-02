@@ -1,0 +1,214 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base>
+  <header class="site-header">
+    <div class="container">
+      <a href="#" class="wordmark">تدبّر</a>
+      <a href="#join" class="btn header-cta">ابدأ رحلة التدبّر</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <span class="eyebrow">منصة تفاعلية لتفسير القرآن الكريم</span>
+        <h1>أن يصل المعنى إلى <em>القلب</em> قبل العقل</h1>
+        <p class="lead">
+          نُعيد تقديم التفاسير الأصيلة في تجربة حديثة ومبسّطة — تفسيرٌ يناسب عمرك
+          ومستواك، ويحوّل الفهم إلى عمل.
+        </p>
+        <a href="#join" class="btn">ابدأ رحلة التدبّر</a>
+        <span class="hint">انضم لقائمة الانتظار وكن من أوائل من يجرّب الإصدار الأول</span>
+      </div>
+    </section>
+
+    <!-- Interactive ayah demo -->
+    <section class="demo">
+      <div class="container">
+        <div class="demo-card reveal">
+          <p class="ayah">﴿ إِنَّ مَعَ الْعُسْرِ يُسْرًا ﴾</p>
+          <span class="ayah-ref">سورة الشرح — الآية ٦</span>
+
+          <div class="level-tabs" role="tablist" aria-label="اختر مستوى التفسير">
+            <button class="level-tab" data-level="kids" role="tab" aria-selected="true" aria-controls="panel-kids">
+              أطفال
+            </button>
+            <button class="level-tab" data-level="mid" role="tab" aria-selected="false" aria-controls="panel-mid">
+              متوسط
+            </button>
+            <button class="level-tab" data-level="adv" role="tab" aria-selected="false" aria-controls="panel-adv">
+              متقدم
+            </button>
+          </div>
+
+          <div class="level-panel" id="panel-kids" role="tabpanel">
+            بعد كل شيء صعب، يأتي شيء سهل. إذا صعُب عليك درسُك أو حزنت يوماً،
+            تذكّر أن الله وعدنا: مع كل صعوبة يأتي الفرج. فلا تحزن، وحاول من جديد.
+          </div>
+
+          <div class="level-panel" id="panel-mid" role="tabpanel" hidden>
+            قاعدة قرآنية للحياة: العسر لا يدوم. مهما ضاقت بك الظروف — في دراستك،
+            أو عملك، أو بيتك — فمع الضيق نفسِه تولد فرص الفرج. الآية لا تقول
+            «بعد العسر» بل «مع العسر»؛ فاليُسر يرافق الشدة ولا ينتظر نهايتها.
+            خطوة عملية: اكتب صعوبةً تمرّ بها اليوم، وابحث عن بابِ يُسرٍ واحدٍ معها.
+          </div>
+
+          <div class="level-panel" id="panel-adv" role="tabpanel" hidden>
+            ذكر المفسّرون أن تعريف «العُسر» وتنكير «اليُسر» — مع تكرار الآية —
+            يفيد أن العسر واحد واليسر متعدد، ومنه ما اشتُهر عن السلف:
+            «لن يغلب عسرٌ يُسرين». وأخبر سبحانه بمصاحبة اليسر للعسر تأكيداً
+            لقرب الفرج وتثبيتاً لقلب النبي ﷺ وأصحابه في شدّتهم.
+            <span class="sources">المصادر: تفسير ابن كثير • تفسير السعدي • تفسير الطبري</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Value points -->
+    <section id="idea">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>من نصٍّ صعب… إلى فهمٍ يقود إلى عمل</h2>
+          <p>
+            كثيراً ما يبقى التفسير بعيداً عن حياتنا اليومية. تدبّر يجعل معنى الآية
+            أقرب وأوضح — لتخرج من كل آية بفهمٍ وخطوة.
+          </p>
+        </div>
+        <div class="points">
+          <div class="point reveal">
+            <span class="icon">🌱</span>
+            <h3>معنى أقرب</h3>
+            <p>نبسّط العبارة دون أن نمسّ المعنى، ليفهم كلُّ قارئ مراد الآية بيسر.</p>
+          </div>
+          <div class="point reveal">
+            <span class="icon">🎚️</span>
+            <h3>لكل مستوى</h3>
+            <p>المحتوى نفسه يتكيّف مع القارئ: طفلاً كان، أو مبتدئاً، أو طالبَ علم.</p>
+          </div>
+          <div class="point reveal">
+            <span class="icon">🧭</span>
+            <h3>من الفهم إلى العمل</h3>
+            <p>كل آية تنتهي بخطوة عملية صغيرة، لأن الفهم طريق العمل.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audience tiers -->
+    <section id="audience">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>تفسير واحد… بثلاثة أبواب</h2>
+          <p>اختر المستوى الذي يناسبك، ويتغيّر المحتوى معك.</p>
+        </div>
+        <div class="tiers">
+          <div class="tier kids reveal">
+            <span class="badge">للأطفال</span>
+            <h3>لغة سهلة وقصص قريبة</h3>
+            <p>تفسير مبسّط بلغة يفهمها الطفل، يزرع حبّ القرآن ومعانيه منذ الصغر.</p>
+          </div>
+          <div class="tier mid reveal">
+            <span class="badge">للمستوى المتوسط</span>
+            <h3>أمثلة عملية من الحياة</h3>
+            <p>ربط معنى الآية بمواقف يومية حقيقية، ليتحوّل الفهم إلى سلوك وعمل.</p>
+          </div>
+          <div class="tier adv reveal">
+            <span class="badge">للمتقدمين</span>
+            <h3>تفسير معمّق مع المصادر</h3>
+            <p>غوصٌ في أقوال المفسّرين ولطائف اللغة، مع إحالة واضحة إلى المصادر.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust -->
+    <section class="trust">
+      <div class="container">
+        <div class="reveal">
+          <h2>أصالةٌ في المصدر، حداثةٌ في التقديم</h2>
+          <p>
+            لا نبتدع تفاسير جديدة. نُعيد ترتيب وتقديم الكنوز التفسيرية الموثوقة —
+            كتفسير ابن كثير والطبري والسعدي — في تجربة تفاعلية حديثة تناسب كل
+            مرحلة عمرية. المصدر أصيل، والقالب جديد.
+          </p>
+        </div>
+        <div class="trust-quote reveal">
+          <p class="big">«الفهم طريق العمل»</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Video teaser -->
+    <section id="video">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>شاهد كيف تعمل المنصة</h2>
+          <p>فيديو قصير يوضح التفاعل مع الآية وكيف يتغيّر المحتوى حسب المستوى.</p>
+        </div>
+        <div class="video-frame reveal">
+          <div class="play-circle">▶</div>
+          <p>الفيديو التعريفي قريباً — ٣٠ إلى ٤٥ ثانية</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Waitlist -->
+    <section class="waitlist" id="join">
+      <div class="container">
+        <div class="waitlist-card reveal">
+          <h2>كن من أوائل المتدبّرين</h2>
+          <p>
+            سجّل بريدك الإلكتروني لنخبرك عند إطلاق الإصدار الأول، ولتكون من أوائل
+            من يجرّب المنصة.
+          </p>
+          <form class="waitlist-form" id="waitlist-form">
+            <input
+              type="email"
+              name="email"
+              placeholder="بريدك الإلكتروني"
+              required
+              aria-label="البريد الإلكتروني"
+            />
+            <button type="submit" class="btn">ابدأ رحلة التدبّر</button>
+          </form>
+          <p class="waitlist-success" id="waitlist-success" hidden>
+            🌿 تمّ تسجيلك بنجاح! سنراسلك عند إطلاق الإصدار الأول بإذن الله.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span class="wordmark">تدبّر</span>
+      <p>ليصل المعنى إلى القلب قبل العقل · © ٢٠٢٦ تدبّر</p>
+    </div>
+  </footer>
+
+  <script>
+    // Level tabs for the ayah demo
+    const tabs = document.querySelectorAll<HTMLButtonElement>('.level-tab');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => {
+          t.setAttribute('aria-selected', String(t === tab));
+          const panel = document.getElementById(t.getAttribute('aria-controls')!);
+          if (panel) panel.hidden = t !== tab;
+        });
+      });
+    });
+
+    // Waitlist form — replace with a real endpoint (e.g. Formspree / Mailchimp) before launch
+    const form = document.getElementById('waitlist-form') as HTMLFormElement | null;
+    const success = document.getElementById('waitlist-success');
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      form.hidden = true;
+      if (success) success.hidden = false;
+    });
+  </script>
+</Base>
