@@ -207,6 +207,89 @@ h2 {
   margin-bottom: 2rem;
 }
 
+.verse-picker {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.picker-field {
+  position: relative;
+  text-align: right;
+}
+
+.picker-field label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.picker-field input,
+.picker-field select {
+  width: 100%;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.picker-field input:focus,
+.picker-field select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.picker-field select:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.surah-results {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  left: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(36, 50, 43, 0.12);
+  list-style: none;
+  padding: 0.4rem;
+}
+
+.surah-results li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.98rem;
+}
+
+.surah-results li:hover {
+  background: var(--primary-soft);
+}
+
+.surah-results .surah-meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.demo-hint {
+  text-align: center;
+  color: var(--muted);
+  padding: 1.5rem 0;
+}
+
 .level-tabs {
   display: flex;
   justify-content: center;
@@ -486,6 +569,13 @@ h2 {
   margin-bottom: 0.5rem;
 }
 
+.site-footer .attribution {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  color: var(--muted);
+  opacity: 0.85;
+}
+
 /* ===== Reveal animation ===== */
 
 .reveal {
@@ -515,4 +605,5 @@ h2 {
   section { padding: 4rem 0; }
   .points, .tiers { grid-template-columns: 1fr; }
   .trust .container { grid-template-columns: 1fr; gap: 2rem; }
+  .verse-picker { grid-template-columns: 1fr; }
 }

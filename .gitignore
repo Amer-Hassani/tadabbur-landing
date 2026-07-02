@@ -4,6 +4,8 @@ dist/
 .astro/
 # dependencies
 node_modules/
+# wrangler local cache
+.wrangler/
 # logs
 npm-debug.log*
 # environment variables

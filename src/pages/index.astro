@@ -25,44 +25,42 @@ import Base from '../layouts/Base.astro';
       </div>
     </section>
 
-    <!-- Interactive ayah demo -->
+    <!-- Interactive verse search -->
     <section class="demo">
       <div class="container">
         <div class="demo-card reveal">
-          <p class="ayah">﴿ إِنَّ مَعَ الْعُسْرِ يُسْرًا ﴾</p>
-          <span class="ayah-ref">سورة الشرح — الآية ٦</span>
-
-          <div class="level-tabs" role="tablist" aria-label="اختر مستوى التفسير">
-            <button class="level-tab" data-level="kids" role="tab" aria-selected="true" aria-controls="panel-kids">
-              أطفال
-            </button>
-            <button class="level-tab" data-level="mid" role="tab" aria-selected="false" aria-controls="panel-mid">
-              متوسط
-            </button>
-            <button class="level-tab" data-level="adv" role="tab" aria-selected="false" aria-controls="panel-adv">
-              متقدم
-            </button>
+          <div class="verse-picker">
+            <div class="picker-field">
+              <label for="surah-search">السورة</label>
+              <input
+                type="text"
+                id="surah-search"
+                placeholder="ابحث عن سورة… (مثل: البقرة)"
+                autocomplete="off"
+                aria-expanded="false"
+                aria-controls="surah-results"
+              />
+              <ul id="surah-results" class="surah-results" role="listbox" hidden></ul>
+            </div>
+            <div class="picker-field">
+              <label for="ayah-select">الآية</label>
+              <select id="ayah-select" disabled>
+                <option>اختر سورة أولاً</option>
+              </select>
+            </div>
           </div>
 
-          <div class="level-panel" id="panel-kids" role="tabpanel">
-            بعد كل شيء صعب، يأتي شيء سهل. إذا صعُب عليك درسُك أو حزنت يوماً،
-            تذكّر أن الله وعدنا: مع كل صعوبة يأتي الفرج. فلا تحزن، وحاول من جديد.
+          <div id="verse-state">
+            <p class="demo-hint">ابحث عن سورة، ثم اختر آية لعرض تفسيرها من مصادر موثوقة.</p>
           </div>
 
-          <div class="level-panel" id="panel-mid" role="tabpanel" hidden>
-            قاعدة قرآنية للحياة: العسر لا يدوم. مهما ضاقت بك الظروف — في دراستك،
-            أو عملك، أو بيتك — فمع الضيق نفسِه تولد فرص الفرج. الآية لا تقول
-            «بعد العسر» بل «مع العسر»؛ فاليُسر يرافق الشدة ولا ينتظر نهايتها.
-            خطوة عملية: اكتب صعوبةً تمرّ بها اليوم، وابحث عن بابِ يُسرٍ واحدٍ معها.
-          </div>
+          <template id="verse-template">
+            <p class="ayah" data-el="ayah-text"></p>
+            <span class="ayah-ref" data-el="ayah-ref"></span>
 
-          <div class="level-panel" id="panel-adv" role="tabpanel" hidden>
-            ذكر المفسّرون أن تعريف «العُسر» وتنكير «اليُسر» — مع تكرار الآية —
-            يفيد أن العسر واحد واليسر متعدد، ومنه ما اشتُهر عن السلف:
-            «لن يغلب عسرٌ يُسرين». وأخبر سبحانه بمصاحبة اليسر للعسر تأكيداً
-            لقرب الفرج وتثبيتاً لقلب النبي ﷺ وأصحابه في شدّتهم.
-            <span class="sources">المصادر: تفسير ابن كثير • تفسير السعدي • تفسير الطبري</span>
-          </div>
+            <div class="level-tabs" data-el="source-tabs" role="tablist" aria-label="اختر مصدر التفسير"></div>
+            <div data-el="source-panels"></div>
+          </template>
         </div>
       </div>
     </section>
@@ -186,21 +184,147 @@ import Base from '../layouts/Base.astro';
     <div class="container">
       <span class="wordmark">تدبّر</span>
       <p>ليصل المعنى إلى القلب قبل العقل · © ٢٠٢٦ تدبّر</p>
+      <p class="attribution">
+        نصوص القرآن والتفسير مقدَّمة عبر Tafsir MCP، برعاية مركز تفسير للدراسات القرآنية (CC BY 4.0)
+      </p>
     </div>
   </footer>
 
   <script>
-    // Level tabs for the ayah demo
-    const tabs = document.querySelectorAll<HTMLButtonElement>('.level-tab');
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        tabs.forEach((t) => {
-          t.setAttribute('aria-selected', String(t === tab));
-          const panel = document.getElementById(t.getAttribute('aria-controls')!);
-          if (panel) panel.hidden = t !== tab;
+    const API_BASE = 'https://tadabbur-tafsir-api.amer19hs.workers.dev';
+
+    type Surah = { surah_no: number; name: string; revelation_type: string; ayah_count: number };
+    type VerseResponse = {
+      surah: number;
+      ayah: number;
+      text: string;
+      tafsirs: { source: string; attribution: string; text: string }[];
+    };
+
+    const surahSearch = document.getElementById('surah-search') as HTMLInputElement;
+    const surahResults = document.getElementById('surah-results') as HTMLUListElement;
+    const ayahSelect = document.getElementById('ayah-select') as HTMLSelectElement;
+    const verseState = document.getElementById('verse-state') as HTMLDivElement;
+    const verseTemplate = document.getElementById('verse-template') as HTMLTemplateElement;
+
+    let surahs: Surah[] = [];
+    let selectedSurah: Surah | null = null;
+
+    async function loadSurahs() {
+      try {
+        const res = await fetch(`${API_BASE}/api/surahs`);
+        if (!res.ok) throw new Error('failed');
+        surahs = await res.json();
+      } catch {
+        verseState.innerHTML = `<p class="demo-hint">تعذّر تحميل قائمة السور حالياً. حاول تحديث الصفحة بعد قليل.</p>`;
+      }
+    }
+    loadSurahs();
+
+    function renderSurahResults(query: string) {
+      const q = query.trim();
+      if (!q) {
+        surahResults.hidden = true;
+        surahResults.innerHTML = '';
+        return;
+      }
+      const matches = surahs.filter((s) => s.name.includes(q) || String(s.surah_no) === q).slice(0, 8);
+      surahResults.innerHTML = matches
+        .map(
+          (s) =>
+            `<li role="option" data-surah="${s.surah_no}">
+               <span>${s.name}</span>
+               <span class="surah-meta">${s.revelation_type} · ${s.ayah_count} آية</span>
+             </li>`
+        )
+        .join('');
+      surahResults.hidden = matches.length === 0;
+    }
+
+    surahSearch.addEventListener('input', () => renderSurahResults(surahSearch.value));
+    surahSearch.addEventListener('focus', () => renderSurahResults(surahSearch.value));
+    document.addEventListener('click', (e) => {
+      if (!(e.target instanceof Node)) return;
+      if (!surahResults.contains(e.target) && e.target !== surahSearch) {
+        surahResults.hidden = true;
+      }
+    });
+
+    surahResults.addEventListener('click', (e) => {
+      const li = (e.target as HTMLElement).closest('li[data-surah]') as HTMLLIElement | null;
+      if (!li) return;
+      const surahNo = Number(li.dataset.surah);
+      selectedSurah = surahs.find((s) => s.surah_no === surahNo) ?? null;
+      if (!selectedSurah) return;
+
+      surahSearch.value = selectedSurah.name;
+      surahResults.hidden = true;
+
+      ayahSelect.disabled = false;
+      ayahSelect.innerHTML = Array.from(
+        { length: selectedSurah.ayah_count },
+        (_, i) => `<option value="${i + 1}">آية ${i + 1}</option>`
+      ).join('');
+      ayahSelect.dispatchEvent(new Event('change'));
+    });
+
+    ayahSelect.addEventListener('change', () => {
+      if (!selectedSurah || ayahSelect.disabled) return;
+      const ayahNo = Number(ayahSelect.value);
+      if (ayahNo) loadVerse(selectedSurah.surah_no, ayahNo);
+    });
+
+    async function loadVerse(surah: number, ayah: number) {
+      verseState.innerHTML = `<p class="demo-hint">جارٍ التحميل…</p>`;
+      try {
+        const res = await fetch(`${API_BASE}/api/verse?surah=${surah}&ayah=${ayah}`);
+        if (!res.ok) throw new Error('failed');
+        const data: VerseResponse = await res.json();
+        renderVerse(data);
+      } catch {
+        verseState.innerHTML = `<p class="demo-hint">تعذّر جلب الآية الآن. جرّب مرة أخرى بعد قليل.</p>`;
+      }
+    }
+
+    function renderVerse(data: VerseResponse) {
+      const frag = verseTemplate.content.cloneNode(true) as DocumentFragment;
+      const ayahText = frag.querySelector('[data-el="ayah-text"]')!;
+      const ayahRef = frag.querySelector('[data-el="ayah-ref"]')!;
+      const tabs = frag.querySelector('[data-el="source-tabs"]') as HTMLDivElement;
+      const panels = frag.querySelector('[data-el="source-panels"]') as HTMLDivElement;
+
+      ayahText.textContent = `﴿ ${data.text} ﴾`;
+      ayahRef.textContent = `سورة ${selectedSurah?.name ?? data.surah} — الآية ${data.ayah}`;
+
+      data.tafsirs.forEach((t, i) => {
+        const tab = document.createElement('button');
+        tab.className = 'level-tab';
+        tab.type = 'button';
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-selected', String(i === 0));
+        tab.setAttribute('aria-controls', `panel-${t.source}`);
+        tab.textContent = t.attribution.split('،')[0];
+        tabs.appendChild(tab);
+
+        const panel = document.createElement('div');
+        panel.className = 'level-panel';
+        panel.id = `panel-${t.source}`;
+        panel.setAttribute('role', 'tabpanel');
+        panel.hidden = i !== 0;
+        panel.textContent = t.text;
+        panels.appendChild(panel);
+
+        tab.addEventListener('click', () => {
+          tabs.querySelectorAll('.level-tab').forEach((el) => el.setAttribute('aria-selected', 'false'));
+          panels.querySelectorAll('.level-panel').forEach((el) => ((el as HTMLElement).hidden = true));
+          tab.setAttribute('aria-selected', 'true');
+          panel.hidden = false;
         });
       });
-    });
+
+      verseState.innerHTML = '';
+      verseState.appendChild(frag);
+    }
 
     // Waitlist form — replace with a real endpoint (e.g. Formspree / Mailchimp) before launch
     const form = document.getElementById('waitlist-form') as HTMLFormElement | null;
