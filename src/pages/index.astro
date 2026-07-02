@@ -25,9 +25,28 @@ import Base from '../layouts/Base.astro';
       </div>
     </section>
 
-    <!-- Interactive verse search -->
+    <!-- Fixed example: shows how the tafsir sources work with one verse -->
     <section class="demo">
       <div class="container">
+        <div class="section-head reveal">
+          <h2>هكذا يعمل تدبّر</h2>
+          <p>اختر مصدراً من المصادر الموثوقة لتقرأ تفسيره لهذه الآية.</p>
+        </div>
+        <div class="demo-card reveal">
+          <div id="example-state">
+            <p class="demo-hint">جارٍ التحميل…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Free verse search -->
+    <section class="demo">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>جرّب بنفسك</h2>
+          <p>ابحث عن أي سورة، واختر أي آية، لتقرأ تفسيرها من المصادر نفسها.</p>
+        </div>
         <div class="demo-card reveal">
           <div class="verse-picker">
             <div class="picker-field">
@@ -48,19 +67,15 @@ import Base from '../layouts/Base.astro';
                 <option>اختر سورة أولاً</option>
               </select>
             </div>
+            <div class="picker-field" id="source-field" hidden>
+              <label for="source-select">التفسير</label>
+              <select id="source-select"></select>
+            </div>
           </div>
 
           <div id="verse-state">
             <p class="demo-hint">ابحث عن سورة، ثم اختر آية لعرض تفسيرها من مصادر موثوقة.</p>
           </div>
-
-          <template id="verse-template">
-            <p class="ayah" data-el="ayah-text"></p>
-            <span class="ayah-ref" data-el="ayah-ref"></span>
-
-            <div class="level-tabs" data-el="source-tabs" role="tablist" aria-label="اختر مصدر التفسير"></div>
-            <div data-el="source-panels"></div>
-          </template>
         </div>
       </div>
     </section>
@@ -192,23 +207,102 @@ import Base from '../layouts/Base.astro';
 
   <script>
     const API_BASE = 'https://tadabbur-tafsir-api.amer19hs.workers.dev';
+    const EXAMPLE_SURAH = 94;
+    const EXAMPLE_AYAH = 6;
 
     type Surah = { surah_no: number; name: string; revelation_type: string; ayah_count: number };
+    type Tafsir = { source: string; attribution: string; text: string };
     type VerseResponse = {
       surah: number;
       ayah: number;
       text: string;
-      tafsirs: { source: string; attribution: string; text: string }[];
+      tafsirs: Tafsir[];
     };
+
+    function renderVerseInto(
+      container: HTMLElement,
+      data: VerseResponse,
+      surahName: string,
+      options: { showTabs: boolean }
+    ) {
+      container.innerHTML = '';
+
+      const ayahText = document.createElement('p');
+      ayahText.className = 'ayah';
+      ayahText.textContent = `﴿ ${data.text} ﴾`;
+
+      const ayahRef = document.createElement('span');
+      ayahRef.className = 'ayah-ref';
+      ayahRef.textContent = `سورة ${surahName} — الآية ${data.ayah}`;
+
+      const panels = document.createElement('div');
+      const tabs = options.showTabs ? document.createElement('div') : null;
+      if (tabs) {
+        tabs.className = 'level-tabs';
+        tabs.setAttribute('role', 'tablist');
+        tabs.setAttribute('aria-label', 'اختر مصدر التفسير');
+      }
+
+      data.tafsirs.forEach((t, i) => {
+        const panelId = `panel-${t.source}-${data.surah}-${data.ayah}`;
+
+        const panel = document.createElement('div');
+        panel.className = 'level-panel';
+        panel.id = panelId;
+        panel.setAttribute('role', 'tabpanel');
+        panel.hidden = i !== 0;
+        panel.textContent = t.text;
+        panels.appendChild(panel);
+
+        if (tabs) {
+          const tab = document.createElement('button');
+          tab.className = 'level-tab';
+          tab.type = 'button';
+          tab.setAttribute('role', 'tab');
+          tab.setAttribute('aria-selected', String(i === 0));
+          tab.setAttribute('aria-controls', panelId);
+          tab.textContent = t.attribution.split('،')[0];
+          tabs.appendChild(tab);
+          tab.addEventListener('click', () => {
+            tabs.querySelectorAll('.level-tab').forEach((el) => el.setAttribute('aria-selected', 'false'));
+            panels.querySelectorAll('.level-panel').forEach((el) => ((el as HTMLElement).hidden = true));
+            tab.setAttribute('aria-selected', 'true');
+            panel.hidden = false;
+          });
+        }
+      });
+
+      container.append(ayahText, ayahRef, ...(tabs ? [tabs] : []), panels);
+    }
+
+    // --- Fixed example section --------------------------------------------
+
+    const exampleState = document.getElementById('example-state') as HTMLDivElement;
+
+    async function loadExample() {
+      try {
+        const res = await fetch(`${API_BASE}/api/verse?surah=${EXAMPLE_SURAH}&ayah=${EXAMPLE_AYAH}`);
+        if (!res.ok) throw new Error('failed');
+        const data: VerseResponse = await res.json();
+        renderVerseInto(exampleState, data, 'الشرح', { showTabs: true });
+      } catch {
+        exampleState.innerHTML = `<p class="demo-hint">تعذّر تحميل المثال حالياً. حاول تحديث الصفحة بعد قليل.</p>`;
+      }
+    }
+    loadExample();
+
+    // --- Free search section -----------------------------------------------
 
     const surahSearch = document.getElementById('surah-search') as HTMLInputElement;
     const surahResults = document.getElementById('surah-results') as HTMLUListElement;
     const ayahSelect = document.getElementById('ayah-select') as HTMLSelectElement;
+    const sourceField = document.getElementById('source-field') as HTMLDivElement;
+    const sourceSelect = document.getElementById('source-select') as HTMLSelectElement;
     const verseState = document.getElementById('verse-state') as HTMLDivElement;
-    const verseTemplate = document.getElementById('verse-template') as HTMLTemplateElement;
 
     let surahs: Surah[] = [];
     let selectedSurah: Surah | null = null;
+    let currentVerse: VerseResponse | null = null;
 
     async function loadSurahs() {
       try {
@@ -223,12 +317,9 @@ import Base from '../layouts/Base.astro';
 
     function renderSurahResults(query: string) {
       const q = query.trim();
-      if (!q) {
-        surahResults.hidden = true;
-        surahResults.innerHTML = '';
-        return;
-      }
-      const matches = surahs.filter((s) => s.name.includes(q) || String(s.surah_no) === q).slice(0, 8);
+      const matches = (
+        q ? surahs.filter((s) => s.name.includes(q) || String(s.surah_no) === q) : surahs
+      ).slice(0, q ? 8 : 20);
       surahResults.innerHTML = matches
         .map(
           (s) =>
@@ -241,8 +332,10 @@ import Base from '../layouts/Base.astro';
       surahResults.hidden = matches.length === 0;
     }
 
-    surahSearch.addEventListener('input', () => renderSurahResults(surahSearch.value));
+    // Clicking the (empty) box shows the full surah list; typing filters it.
     surahSearch.addEventListener('focus', () => renderSurahResults(surahSearch.value));
+    surahSearch.addEventListener('click', () => renderSurahResults(surahSearch.value));
+    surahSearch.addEventListener('input', () => renderSurahResults(surahSearch.value));
     document.addEventListener('click', (e) => {
       if (!(e.target instanceof Node)) return;
       if (!surahResults.contains(e.target) && e.target !== surahSearch) {
@@ -274,56 +367,30 @@ import Base from '../layouts/Base.astro';
       if (ayahNo) loadVerse(selectedSurah.surah_no, ayahNo);
     });
 
+    sourceSelect.addEventListener('change', () => {
+      if (!currentVerse) return;
+      const panel = verseState.querySelector(`[id^="panel-${sourceSelect.value}-"]`) as HTMLElement | null;
+      verseState.querySelectorAll('.level-panel').forEach((el) => ((el as HTMLElement).hidden = true));
+      if (panel) panel.hidden = false;
+    });
+
     async function loadVerse(surah: number, ayah: number) {
+      sourceField.hidden = true;
       verseState.innerHTML = `<p class="demo-hint">جارٍ التحميل…</p>`;
       try {
         const res = await fetch(`${API_BASE}/api/verse?surah=${surah}&ayah=${ayah}`);
         if (!res.ok) throw new Error('failed');
         const data: VerseResponse = await res.json();
-        renderVerse(data);
+        currentVerse = data;
+        renderVerseInto(verseState, data, selectedSurah?.name ?? String(surah), { showTabs: false });
+
+        sourceSelect.innerHTML = data.tafsirs
+          .map((t, i) => `<option value="${t.source}"${i === 0 ? ' selected' : ''}>${t.attribution.split('،')[0]}</option>`)
+          .join('');
+        sourceField.hidden = false;
       } catch {
         verseState.innerHTML = `<p class="demo-hint">تعذّر جلب الآية الآن. جرّب مرة أخرى بعد قليل.</p>`;
       }
-    }
-
-    function renderVerse(data: VerseResponse) {
-      const frag = verseTemplate.content.cloneNode(true) as DocumentFragment;
-      const ayahText = frag.querySelector('[data-el="ayah-text"]')!;
-      const ayahRef = frag.querySelector('[data-el="ayah-ref"]')!;
-      const tabs = frag.querySelector('[data-el="source-tabs"]') as HTMLDivElement;
-      const panels = frag.querySelector('[data-el="source-panels"]') as HTMLDivElement;
-
-      ayahText.textContent = `﴿ ${data.text} ﴾`;
-      ayahRef.textContent = `سورة ${selectedSurah?.name ?? data.surah} — الآية ${data.ayah}`;
-
-      data.tafsirs.forEach((t, i) => {
-        const tab = document.createElement('button');
-        tab.className = 'level-tab';
-        tab.type = 'button';
-        tab.setAttribute('role', 'tab');
-        tab.setAttribute('aria-selected', String(i === 0));
-        tab.setAttribute('aria-controls', `panel-${t.source}`);
-        tab.textContent = t.attribution.split('،')[0];
-        tabs.appendChild(tab);
-
-        const panel = document.createElement('div');
-        panel.className = 'level-panel';
-        panel.id = `panel-${t.source}`;
-        panel.setAttribute('role', 'tabpanel');
-        panel.hidden = i !== 0;
-        panel.textContent = t.text;
-        panels.appendChild(panel);
-
-        tab.addEventListener('click', () => {
-          tabs.querySelectorAll('.level-tab').forEach((el) => el.setAttribute('aria-selected', 'false'));
-          panels.querySelectorAll('.level-panel').forEach((el) => ((el as HTMLElement).hidden = true));
-          tab.setAttribute('aria-selected', 'true');
-          panel.hidden = false;
-        });
-      });
-
-      verseState.innerHTML = '';
-      verseState.appendChild(frag);
     }
 
     // Waitlist form — replace with a real endpoint (e.g. Formspree / Mailchimp) before launch
