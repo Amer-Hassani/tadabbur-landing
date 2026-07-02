@@ -10,6 +10,10 @@ const {
   title = 'تدبّر — ليصل المعنى إلى القلب قبل العقل',
   description = 'منصة تفاعلية لتفسير القرآن الكريم تُعيد تقديم التفاسير الأصيلة بقالبٍ حديث ومبسّط. انضم لقائمة الانتظار وكن من أوائل المتدبّرين.',
 } = Astro.props;
+
+const base = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : import.meta.env.BASE_URL + '/';
 ---
 
 <!doctype html>
@@ -22,7 +26,7 @@ const {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={base + 'favicon.svg'} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
