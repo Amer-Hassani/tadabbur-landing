@@ -6,7 +6,19 @@ import Base from '../layouts/Base.astro';
   <header class="site-header">
     <div class="container">
       <a href="#" class="wordmark">تدبّر</a>
-      <a href="#join" class="btn header-cta">ابدأ رحلة التدبّر</a>
+      <div class="header-actions">
+        <button id="lang-toggle" class="icon-btn" type="button" aria-label="Change language">
+          <span data-lang-ar>English</span>
+          <span data-lang-en>العربية</span>
+        </button>
+        <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle theme">
+          <span class="theme-icon">🌙</span>
+        </button>
+        <a href="#join" class="btn header-cta">
+          <span data-lang-ar>ابدأ رحلة التدبّر</span>
+          <span data-lang-en>Begin your journey</span>
+        </a>
+      </div>
     </div>
   </header>
 
@@ -14,27 +26,54 @@ import Base from '../layouts/Base.astro';
     <!-- Hero -->
     <section class="hero">
       <div class="container">
-        <span class="eyebrow">منصة تفاعلية لتفسير القرآن الكريم</span>
-        <h1>أن يصل المعنى إلى <em>القلب</em> قبل العقل</h1>
+        <span class="eyebrow">
+          <span data-lang-ar>منصة تفاعلية لتفسير القرآن الكريم</span>
+          <span data-lang-en>An interactive platform for Qur'anic tafsir</span>
+        </span>
+        <h1>
+          <span data-lang-ar>أن يصل المعنى إلى <em>القلب</em> قبل العقل</span>
+          <span data-lang-en>Let meaning reach the <em>heart</em> before the mind</span>
+        </h1>
         <p class="lead">
-          نُعيد تقديم التفاسير الأصيلة في تجربة حديثة ومبسّطة — تفسيرٌ يناسب عمرك
-          ومستواك، ويحوّل الفهم إلى عمل.
+          <span data-lang-ar>
+            نُعيد تقديم التفاسير الأصيلة في تجربة حديثة ومبسّطة — تفسيرٌ يناسب عمرك
+            ومستواك، ويحوّل الفهم إلى عمل.
+          </span>
+          <span data-lang-en>
+            We present authentic tafsir in a modern, simplified experience — an
+            interpretation that fits your level and turns understanding into action.
+          </span>
         </p>
-        <a href="#join" class="btn">ابدأ رحلة التدبّر</a>
-        <span class="hint">انضم لقائمة الانتظار وكن من أوائل من يجرّب الإصدار الأول</span>
+        <a href="#join" class="btn">
+          <span data-lang-ar>ابدأ رحلة التدبّر</span>
+          <span data-lang-en>Begin your journey</span>
+        </a>
+        <span class="hint">
+          <span data-lang-ar>انضم لقائمة الانتظار وكن من أوائل من يجرّب الإصدار الأول</span>
+          <span data-lang-en>Join the waitlist and be among the first to try the first release</span>
+        </span>
       </div>
     </section>
 
-    <!-- Fixed example: shows how the tafsir sources work with one verse -->
+    <!-- Fixed example -->
     <section class="demo">
       <div class="container">
         <div class="section-head reveal">
-          <h2>هكذا يعمل تدبّر</h2>
-          <p>اختر مصدراً من المصادر الموثوقة لتقرأ تفسيره لهذه الآية.</p>
+          <h2>
+            <span data-lang-ar>هكذا يعمل تدبّر</span>
+            <span data-lang-en>How Tadabbur works</span>
+          </h2>
+          <p>
+            <span data-lang-ar>اختر مصدراً من المصادر الموثوقة لتقرأ تفسيره لهذه الآية.</span>
+            <span data-lang-en>Choose a trusted source to read its tafsir of this verse.</span>
+          </p>
         </div>
         <div class="demo-card reveal">
           <div id="example-state">
-            <p class="demo-hint">جارٍ التحميل…</p>
+            <p class="demo-hint">
+              <span data-lang-ar>جارٍ التحميل…</span>
+              <span data-lang-en>Loading…</span>
+            </p>
           </div>
         </div>
       </div>
@@ -44,37 +83,54 @@ import Base from '../layouts/Base.astro';
     <section class="demo">
       <div class="container">
         <div class="section-head reveal">
-          <h2>جرّب بنفسك</h2>
-          <p>ابحث عن أي سورة، واختر أي آية، لتقرأ تفسيرها من المصادر نفسها.</p>
+          <h2>
+            <span data-lang-ar>جرّب بنفسك</span>
+            <span data-lang-en>Try it yourself</span>
+          </h2>
+          <p>
+            <span data-lang-ar>ابحث عن أي سورة، واختر أي آية، لتقرأ تفسيرها من المصادر نفسها.</span>
+            <span data-lang-en>Search any surah, pick any verse, and read its tafsir from the same sources.</span>
+          </p>
         </div>
         <div class="demo-card reveal">
           <div class="verse-picker">
             <div class="picker-field">
-              <label for="surah-search">السورة</label>
+              <label for="surah-search">
+                <span data-lang-ar>السورة</span><span data-lang-en>Surah</span>
+              </label>
               <input
                 type="text"
                 id="surah-search"
-                placeholder="ابحث عن سورة… (مثل: البقرة)"
                 autocomplete="off"
                 aria-expanded="false"
                 aria-controls="surah-results"
+                data-ph-ar="ابحث عن سورة… (مثل: البقرة)"
+                data-ph-en="Search a surah… (e.g. Al-Baqarah)"
               />
               <ul id="surah-results" class="surah-results" role="listbox" hidden></ul>
             </div>
             <div class="picker-field">
-              <label for="ayah-select">الآية</label>
+              <label for="ayah-select">
+                <span data-lang-ar>الآية</span><span data-lang-en>Verse</span>
+              </label>
               <select id="ayah-select" disabled>
-                <option>اختر سورة أولاً</option>
+                <option data-lang-ar>اختر سورة أولاً</option>
+                <option data-lang-en>Choose a surah first</option>
               </select>
             </div>
             <div class="picker-field" id="source-field" hidden>
-              <label for="source-select">التفسير</label>
+              <label for="source-select">
+                <span data-lang-ar>التفسير</span><span data-lang-en>Tafsir</span>
+              </label>
               <select id="source-select"></select>
             </div>
           </div>
 
           <div id="verse-state">
-            <p class="demo-hint">ابحث عن سورة، ثم اختر آية لعرض تفسيرها من مصادر موثوقة.</p>
+            <p class="demo-hint">
+              <span data-lang-ar>ابحث عن سورة، ثم اختر آية لعرض تفسيرها من مصادر موثوقة.</span>
+              <span data-lang-en>Search a surah, then pick a verse to see its tafsir from trusted sources.</span>
+            </p>
           </div>
         </div>
       </div>
@@ -84,27 +140,46 @@ import Base from '../layouts/Base.astro';
     <section id="idea">
       <div class="container">
         <div class="section-head reveal">
-          <h2>من نصٍّ صعب… إلى فهمٍ يقود إلى عمل</h2>
+          <h2>
+            <span data-lang-ar>من نصٍّ صعب… إلى فهمٍ يقود إلى عمل</span>
+            <span data-lang-en>From a difficult text… to understanding that leads to action</span>
+          </h2>
           <p>
-            كثيراً ما يبقى التفسير بعيداً عن حياتنا اليومية. تدبّر يجعل معنى الآية
-            أقرب وأوضح — لتخرج من كل آية بفهمٍ وخطوة.
+            <span data-lang-ar>
+              كثيراً ما يبقى التفسير بعيداً عن حياتنا اليومية. تدبّر يجعل معنى الآية
+              أقرب وأوضح — لتخرج من كل آية بفهمٍ وخطوة.
+            </span>
+            <span data-lang-en>
+              Tafsir often stays distant from daily life. Tadabbur brings the meaning
+              of each verse closer and clearer — so you leave every verse with an
+              understanding and a step.
+            </span>
           </p>
         </div>
         <div class="points">
           <div class="point reveal">
             <span class="icon">🌱</span>
-            <h3>معنى أقرب</h3>
-            <p>نبسّط العبارة دون أن نمسّ المعنى، ليفهم كلُّ قارئ مراد الآية بيسر.</p>
+            <h3><span data-lang-ar>معنى أقرب</span><span data-lang-en>Closer meaning</span></h3>
+            <p>
+              <span data-lang-ar>نبسّط العبارة دون أن نمسّ المعنى، ليفهم كلُّ قارئ مراد الآية بيسر.</span>
+              <span data-lang-en>We simplify the wording without touching the meaning, so every reader grasps the verse with ease.</span>
+            </p>
           </div>
           <div class="point reveal">
             <span class="icon">🎚️</span>
-            <h3>لكل مستوى</h3>
-            <p>المحتوى نفسه يتكيّف مع القارئ: طفلاً كان، أو مبتدئاً، أو طالبَ علم.</p>
+            <h3><span data-lang-ar>لكل مستوى</span><span data-lang-en>For every level</span></h3>
+            <p>
+              <span data-lang-ar>المحتوى نفسه يتكيّف مع القارئ: طفلاً كان، أو مبتدئاً، أو طالبَ علم.</span>
+              <span data-lang-en>The content adapts to the reader: a child, a beginner, or a student of knowledge.</span>
+            </p>
           </div>
           <div class="point reveal">
             <span class="icon">🧭</span>
-            <h3>من الفهم إلى العمل</h3>
-            <p>كل آية تنتهي بخطوة عملية صغيرة، لأن الفهم طريق العمل.</p>
+            <h3><span data-lang-ar>من الفهم إلى العمل</span><span data-lang-en>From understanding to action</span></h3>
+            <p>
+              <span data-lang-ar>كل آية تنتهي بخطوة عملية صغيرة، لأن الفهم طريق العمل.</span>
+              <span data-lang-en>Each verse ends with a small practical step, because understanding is the path to action.</span>
+            </p>
           </div>
         </div>
       </div>
@@ -114,24 +189,39 @@ import Base from '../layouts/Base.astro';
     <section id="audience">
       <div class="container">
         <div class="section-head reveal">
-          <h2>تفسير واحد… بثلاثة أبواب</h2>
-          <p>اختر المستوى الذي يناسبك، ويتغيّر المحتوى معك.</p>
+          <h2>
+            <span data-lang-ar>تفسير واحد… بثلاثة أبواب</span>
+            <span data-lang-en>One tafsir… three doors</span>
+          </h2>
+          <p>
+            <span data-lang-ar>اختر المستوى الذي يناسبك، ويتغيّر المحتوى معك.</span>
+            <span data-lang-en>Choose the level that suits you, and the content adapts with you.</span>
+          </p>
         </div>
         <div class="tiers">
           <div class="tier kids reveal">
-            <span class="badge">للأطفال</span>
-            <h3>لغة سهلة وقصص قريبة</h3>
-            <p>تفسير مبسّط بلغة يفهمها الطفل، يزرع حبّ القرآن ومعانيه منذ الصغر.</p>
+            <span class="badge"><span data-lang-ar>للأطفال</span><span data-lang-en>For children</span></span>
+            <h3><span data-lang-ar>لغة سهلة وقصص قريبة</span><span data-lang-en>Simple language, close stories</span></h3>
+            <p>
+              <span data-lang-ar>تفسير مبسّط بلغة يفهمها الطفل، يزرع حبّ القرآن ومعانيه منذ الصغر.</span>
+              <span data-lang-en>Simplified tafsir in language a child understands, planting a love of the Qur'an early.</span>
+            </p>
           </div>
           <div class="tier mid reveal">
-            <span class="badge">للمستوى المتوسط</span>
-            <h3>أمثلة عملية من الحياة</h3>
-            <p>ربط معنى الآية بمواقف يومية حقيقية، ليتحوّل الفهم إلى سلوك وعمل.</p>
+            <span class="badge"><span data-lang-ar>للمستوى المتوسط</span><span data-lang-en>Intermediate</span></span>
+            <h3><span data-lang-ar>أمثلة عملية من الحياة</span><span data-lang-en>Practical, real-life examples</span></h3>
+            <p>
+              <span data-lang-ar>ربط معنى الآية بمواقف يومية حقيقية، ليتحوّل الفهم إلى سلوك وعمل.</span>
+              <span data-lang-en>Linking a verse's meaning to real daily situations, turning understanding into behavior.</span>
+            </p>
           </div>
           <div class="tier adv reveal">
-            <span class="badge">للمتقدمين</span>
-            <h3>تفسير معمّق مع المصادر</h3>
-            <p>غوصٌ في أقوال المفسّرين ولطائف اللغة، مع إحالة واضحة إلى المصادر.</p>
+            <span class="badge"><span data-lang-ar>للمتقدمين</span><span data-lang-en>Advanced</span></span>
+            <h3><span data-lang-ar>تفسير معمّق مع المصادر</span><span data-lang-en>In-depth tafsir with sources</span></h3>
+            <p>
+              <span data-lang-ar>غوصٌ في أقوال المفسّرين ولطائف اللغة، مع إحالة واضحة إلى المصادر.</span>
+              <span data-lang-en>A dive into the scholars' words and the subtleties of language, with clear references.</span>
+            </p>
           </div>
         </div>
       </div>
@@ -141,11 +231,21 @@ import Base from '../layouts/Base.astro';
     <section class="trust">
       <div class="container">
         <div class="reveal">
-          <h2>أصالةٌ في المصدر، حداثةٌ في التقديم</h2>
+          <h2>
+            <span data-lang-ar>أصالةٌ في المصدر، حداثةٌ في التقديم</span>
+            <span data-lang-en>Authentic in source, modern in presentation</span>
+          </h2>
           <p>
-            لا نبتدع تفاسير جديدة. نُعيد ترتيب وتقديم الكنوز التفسيرية الموثوقة —
-            كتفسير ابن كثير والطبري والسعدي — في تجربة تفاعلية حديثة تناسب كل
-            مرحلة عمرية. المصدر أصيل، والقالب جديد.
+            <span data-lang-ar>
+              لا نبتدع تفاسير جديدة. نُعيد ترتيب وتقديم الكنوز التفسيرية الموثوقة —
+              كتفسير ابن كثير والطبري والسعدي — في تجربة تفاعلية حديثة تناسب كل
+              مرحلة عمرية. المصدر أصيل، والقالب جديد.
+            </span>
+            <span data-lang-en>
+              We invent no new interpretations. We re-present the trusted treasures of
+              tafsir — such as Ibn Kathir, Al-Tabari, and Al-Sa'di — in a modern
+              interactive experience for every age. The source is authentic; the form is new.
+            </span>
           </p>
         </div>
         <div class="trust-quote reveal">
@@ -158,12 +258,21 @@ import Base from '../layouts/Base.astro';
     <section id="video">
       <div class="container">
         <div class="section-head reveal">
-          <h2>شاهد كيف تعمل المنصة</h2>
-          <p>فيديو قصير يوضح التفاعل مع الآية وكيف يتغيّر المحتوى حسب المستوى.</p>
+          <h2>
+            <span data-lang-ar>شاهد كيف تعمل المنصة</span>
+            <span data-lang-en>See how the platform works</span>
+          </h2>
+          <p>
+            <span data-lang-ar>فيديو قصير يوضح التفاعل مع الآية وكيف يتغيّر المحتوى حسب المستوى.</span>
+            <span data-lang-en>A short video showing interaction with a verse and how content changes by level.</span>
+          </p>
         </div>
         <div class="video-frame reveal">
           <div class="play-circle">▶</div>
-          <p>الفيديو التعريفي قريباً — ٣٠ إلى ٤٥ ثانية</p>
+          <p>
+            <span data-lang-ar>الفيديو التعريفي قريباً — ٣٠ إلى ٤٥ ثانية</span>
+            <span data-lang-en>Intro video coming soon — 30 to 45 seconds</span>
+          </p>
         </div>
       </div>
     </section>
@@ -172,24 +281,35 @@ import Base from '../layouts/Base.astro';
     <section class="waitlist" id="join">
       <div class="container">
         <div class="waitlist-card reveal">
-          <h2>كن من أوائل المتدبّرين</h2>
+          <h2>
+            <span data-lang-ar>كن من أوائل المتدبّرين</span>
+            <span data-lang-en>Be among the first</span>
+          </h2>
           <p>
-            سجّل بريدك الإلكتروني لنخبرك عند إطلاق الإصدار الأول، ولتكون من أوائل
-            من يجرّب المنصة.
+            <span data-lang-ar>
+              سجّل بريدك الإلكتروني لنخبرك عند إطلاق الإصدار الأول، ولتكون من أوائل
+              من يجرّب المنصة.
+            </span>
+            <span data-lang-en>
+              Enter your email and we'll let you know when the first release launches —
+              and you'll be among the first to try it.
+            </span>
           </p>
           <form class="waitlist-form" id="waitlist-form">
             <input
               type="email"
               name="email"
-              placeholder="بريدك الإلكتروني"
               required
-              aria-label="البريد الإلكتروني"
+              aria-label="Email"
+              data-ph-ar="بريدك الإلكتروني"
+              data-ph-en="Your email address"
             />
-            <button type="submit" class="btn">ابدأ رحلة التدبّر</button>
+            <button type="submit" class="btn">
+              <span data-lang-ar>ابدأ رحلة التدبّر</span>
+              <span data-lang-en>Begin your journey</span>
+            </button>
           </form>
-          <p class="waitlist-success" id="waitlist-success" hidden>
-            🌿 تمّ تسجيلك بنجاح! سنراسلك عند إطلاق الإصدار الأول بإذن الله.
-          </p>
+          <p class="waitlist-note" id="waitlist-note" role="status"></p>
         </div>
       </div>
     </section>
@@ -198,9 +318,13 @@ import Base from '../layouts/Base.astro';
   <footer class="site-footer">
     <div class="container">
       <span class="wordmark">تدبّر</span>
-      <p>ليصل المعنى إلى القلب قبل العقل · © ٢٠٢٦ تدبّر</p>
+      <p>
+        <span data-lang-ar>ليصل المعنى إلى القلب قبل العقل · © ٢٠٢٦ تدبّر</span>
+        <span data-lang-en>Let meaning reach the heart before the mind · © 2026 Tadabbur</span>
+      </p>
       <p class="attribution">
-        نصوص القرآن والتفسير مقدَّمة عبر Tafsir MCP، برعاية مركز تفسير للدراسات القرآنية (CC BY 4.0)
+        <span data-lang-ar>نصوص القرآن والتفسير مقدَّمة عبر Tafsir MCP، برعاية مركز تفسير للدراسات القرآنية (CC BY 4.0)</span>
+        <span data-lang-en>Qur'an and tafsir texts provided via Tafsir MCP, by the Tafsir Center for Qur'anic Studies (CC BY 4.0)</span>
       </p>
     </div>
   </footer>
@@ -212,20 +336,88 @@ import Base from '../layouts/Base.astro';
 
     type Surah = { surah_no: number; name: string; revelation_type: string; ayah_count: number };
     type Tafsir = { source: string; attribution: string; text: string };
-    type VerseResponse = {
-      surah: number;
-      ayah: number;
-      text: string;
-      tafsirs: Tafsir[];
+    type VerseResponse = { surah: number; ayah: number; text: string; tafsirs: Tafsir[] };
+
+    const root = document.documentElement;
+
+    // --- Language + theme -------------------------------------------------
+
+    const T = {
+      ar: {
+        ayahWord: 'آية',
+        loading: 'جارٍ التحميل…',
+        exampleErr: 'تعذّر تحميل المثال حالياً. حاول تحديث الصفحة بعد قليل.',
+        surahErr: 'تعذّر تحميل قائمة السور حالياً. حاول تحديث الصفحة بعد قليل.',
+        verseErr: 'تعذّر جلب الآية الآن. جرّب مرة أخرى بعد قليل.',
+        surahLabel: (n: string) => `سورة ${n}`,
+        sending: 'جارٍ التسجيل…',
+        subOk: '🌿 تمّ تسجيلك بنجاح! راجع بريدك — أرسلنا لك رسالة ترحيب.',
+        subErr: 'تعذّر التسجيل الآن. تأكد من بريدك وحاول مرة أخرى.',
+        badEmail: 'من فضلك أدخل بريداً إلكترونياً صحيحاً.',
+      },
+      en: {
+        ayahWord: 'Verse',
+        loading: 'Loading…',
+        exampleErr: 'Could not load the example right now. Please refresh in a moment.',
+        surahErr: 'Could not load the surah list right now. Please refresh in a moment.',
+        verseErr: 'Could not fetch the verse right now. Please try again shortly.',
+        surahLabel: (n: string) => `Surah ${n}`,
+        sending: 'Signing you up…',
+        subOk: '🌿 You are on the list! Check your inbox — we sent you a welcome note.',
+        subErr: 'Could not sign you up right now. Check your email and try again.',
+        badEmail: 'Please enter a valid email address.',
+      },
     };
+
+    let lang: 'ar' | 'en' = (localStorage.getItem('tadabbur-lang') as 'ar' | 'en') || 'ar';
+    let theme: 'light' | 'dark' = (localStorage.getItem('tadabbur-theme') as 'light' | 'dark') || 'light';
+
+    function applyLang() {
+      root.setAttribute('lang', lang);
+      root.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+      // Placeholders (can't be done with CSS)
+      document.querySelectorAll<HTMLElement>('[data-ph-ar]').forEach((el) => {
+        (el as HTMLInputElement).placeholder = el.dataset[lang === 'ar' ? 'phAr' : 'phEn'] || '';
+      });
+      // Re-render current dynamic content in the new language
+      if (lastExample) renderVerseInto(exampleState, lastExample, 'الشرح', 'Ash-Sharh', { showTabs: true });
+      if (currentVerse && selectedSurah) {
+        renderVerseInto(verseState, currentVerse, selectedSurah.name, selectedSurah.name, { showTabs: false });
+        applySourceSelection();
+      }
+    }
+
+    function applyTheme() {
+      root.setAttribute('data-theme', theme);
+      const icon = document.querySelector('.theme-icon');
+      if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    document.getElementById('lang-toggle')!.addEventListener('click', () => {
+      lang = lang === 'ar' ? 'en' : 'ar';
+      localStorage.setItem('tadabbur-lang', lang);
+      applyLang();
+    });
+
+    document.getElementById('theme-toggle')!.addEventListener('click', () => {
+      theme = theme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('tadabbur-theme', theme);
+      applyTheme();
+    });
+
+    applyTheme();
+
+    // --- Verse rendering (shared) -----------------------------------------
 
     function renderVerseInto(
       container: HTMLElement,
       data: VerseResponse,
-      surahName: string,
+      surahNameAr: string,
+      surahNameEn: string,
       options: { showTabs: boolean }
     ) {
       container.innerHTML = '';
+      const t = T[lang];
 
       const ayahText = document.createElement('p');
       ayahText.className = 'ayah';
@@ -233,25 +425,25 @@ import Base from '../layouts/Base.astro';
 
       const ayahRef = document.createElement('span');
       ayahRef.className = 'ayah-ref';
-      ayahRef.textContent = `سورة ${surahName} — الآية ${data.ayah}`;
+      const name = lang === 'ar' ? surahNameAr : surahNameEn;
+      ayahRef.textContent = `${t.surahLabel(name)} — ${t.ayahWord} ${data.ayah}`;
 
       const panels = document.createElement('div');
       const tabs = options.showTabs ? document.createElement('div') : null;
       if (tabs) {
         tabs.className = 'level-tabs';
         tabs.setAttribute('role', 'tablist');
-        tabs.setAttribute('aria-label', 'اختر مصدر التفسير');
       }
 
-      data.tafsirs.forEach((t, i) => {
-        const panelId = `panel-${t.source}-${data.surah}-${data.ayah}`;
+      data.tafsirs.forEach((tf, i) => {
+        const panelId = `panel-${tf.source}-${data.surah}-${data.ayah}`;
 
         const panel = document.createElement('div');
         panel.className = 'level-panel';
         panel.id = panelId;
         panel.setAttribute('role', 'tabpanel');
         panel.hidden = i !== 0;
-        panel.textContent = t.text;
+        panel.textContent = tf.text;
         panels.appendChild(panel);
 
         if (tabs) {
@@ -261,7 +453,7 @@ import Base from '../layouts/Base.astro';
           tab.setAttribute('role', 'tab');
           tab.setAttribute('aria-selected', String(i === 0));
           tab.setAttribute('aria-controls', panelId);
-          tab.textContent = t.attribution.split('،')[0];
+          tab.textContent = tf.attribution.split('،')[0];
           tabs.appendChild(tab);
           tab.addEventListener('click', () => {
             tabs.querySelectorAll('.level-tab').forEach((el) => el.setAttribute('aria-selected', 'false'));
@@ -278,15 +470,16 @@ import Base from '../layouts/Base.astro';
     // --- Fixed example section --------------------------------------------
 
     const exampleState = document.getElementById('example-state') as HTMLDivElement;
+    let lastExample: VerseResponse | null = null;
 
     async function loadExample() {
       try {
         const res = await fetch(`${API_BASE}/api/verse?surah=${EXAMPLE_SURAH}&ayah=${EXAMPLE_AYAH}`);
         if (!res.ok) throw new Error('failed');
-        const data: VerseResponse = await res.json();
-        renderVerseInto(exampleState, data, 'الشرح', { showTabs: true });
+        lastExample = await res.json();
+        renderVerseInto(exampleState, lastExample!, 'الشرح', 'Ash-Sharh', { showTabs: true });
       } catch {
-        exampleState.innerHTML = `<p class="demo-hint">تعذّر تحميل المثال حالياً. حاول تحديث الصفحة بعد قليل.</p>`;
+        exampleState.innerHTML = `<p class="demo-hint">${T[lang].exampleErr}</p>`;
       }
     }
     loadExample();
@@ -311,7 +504,7 @@ import Base from '../layouts/Base.astro';
         if (!res.ok) throw new Error('failed');
         surahs = await res.json();
       } catch {
-        verseState.innerHTML = `<p class="demo-hint">تعذّر تحميل قائمة السور حالياً. حاول تحديث الصفحة بعد قليل.</p>`;
+        verseState.innerHTML = `<p class="demo-hint">${T[lang].surahErr}</p>`;
       }
     }
     loadSurahs();
@@ -325,23 +518,20 @@ import Base from '../layouts/Base.astro';
         .map(
           (s) =>
             `<li role="option" data-surah="${s.surah_no}">
-               <span>${s.name}</span>
-               <span class="surah-meta">${s.revelation_type} · ${s.ayah_count} آية</span>
+               <span>${s.surah_no}. ${s.name}</span>
+               <span class="surah-meta">${s.ayah_count}</span>
              </li>`
         )
         .join('');
       surahResults.hidden = matches.length === 0;
     }
 
-    // Clicking the (empty) box shows the full surah list; typing filters it.
     surahSearch.addEventListener('focus', () => renderSurahResults(surahSearch.value));
     surahSearch.addEventListener('click', () => renderSurahResults(surahSearch.value));
     surahSearch.addEventListener('input', () => renderSurahResults(surahSearch.value));
     document.addEventListener('click', (e) => {
       if (!(e.target instanceof Node)) return;
-      if (!surahResults.contains(e.target) && e.target !== surahSearch) {
-        surahResults.hidden = true;
-      }
+      if (!surahResults.contains(e.target) && e.target !== surahSearch) surahResults.hidden = true;
     });
 
     surahResults.addEventListener('click', (e) => {
@@ -355,9 +545,10 @@ import Base from '../layouts/Base.astro';
       surahResults.hidden = true;
 
       ayahSelect.disabled = false;
+      const word = T[lang].ayahWord;
       ayahSelect.innerHTML = Array.from(
         { length: selectedSurah.ayah_count },
-        (_, i) => `<option value="${i + 1}">آية ${i + 1}</option>`
+        (_, i) => `<option value="${i + 1}">${word} ${i + 1}</option>`
       ).join('');
       ayahSelect.dispatchEvent(new Event('change'));
     });
@@ -374,6 +565,22 @@ import Base from '../layouts/Base.astro';
       if (panel) panel.hidden = false;
     }
 
+    function applySourceSelection() {
+      if (!currentVerse) return;
+      const activeSource =
+        preferredSource && currentVerse.tafsirs.some((t) => t.source === preferredSource)
+          ? preferredSource
+          : currentVerse.tafsirs[0]?.source;
+      sourceSelect.innerHTML = currentVerse.tafsirs
+        .map(
+          (t) =>
+            `<option value="${t.source}"${t.source === activeSource ? ' selected' : ''}>${t.attribution.split('،')[0]}</option>`
+        )
+        .join('');
+      sourceField.hidden = false;
+      if (activeSource) showSourcePanel(activeSource);
+    }
+
     sourceSelect.addEventListener('change', () => {
       if (!currentVerse) return;
       preferredSource = sourceSelect.value;
@@ -382,37 +589,54 @@ import Base from '../layouts/Base.astro';
 
     async function loadVerse(surah: number, ayah: number) {
       sourceField.hidden = true;
-      verseState.innerHTML = `<p class="demo-hint">جارٍ التحميل…</p>`;
+      verseState.innerHTML = `<p class="demo-hint">${T[lang].loading}</p>`;
       try {
         const res = await fetch(`${API_BASE}/api/verse?surah=${surah}&ayah=${ayah}`);
         if (!res.ok) throw new Error('failed');
-        const data: VerseResponse = await res.json();
-        currentVerse = data;
-        renderVerseInto(verseState, data, selectedSurah?.name ?? String(surah), { showTabs: false });
-
-        // Keep the visitor's previously chosen tafsir source selected, if this verse has it.
-        const activeSource =
-          preferredSource && data.tafsirs.some((t) => t.source === preferredSource)
-            ? preferredSource
-            : data.tafsirs[0]?.source;
-
-        sourceSelect.innerHTML = data.tafsirs
-          .map((t) => `<option value="${t.source}"${t.source === activeSource ? ' selected' : ''}>${t.attribution.split('،')[0]}</option>`)
-          .join('');
-        sourceField.hidden = false;
-        if (activeSource) showSourcePanel(activeSource);
+        currentVerse = await res.json();
+        const name = selectedSurah?.name ?? String(surah);
+        renderVerseInto(verseState, currentVerse!, name, name, { showTabs: false });
+        applySourceSelection();
       } catch {
-        verseState.innerHTML = `<p class="demo-hint">تعذّر جلب الآية الآن. جرّب مرة أخرى بعد قليل.</p>`;
+        verseState.innerHTML = `<p class="demo-hint">${T[lang].verseErr}</p>`;
       }
     }
 
-    // Waitlist form — replace with a real endpoint (e.g. Formspree / Mailchimp) before launch
-    const form = document.getElementById('waitlist-form') as HTMLFormElement | null;
-    const success = document.getElementById('waitlist-success');
-    form?.addEventListener('submit', (e) => {
+    // --- Waitlist form -----------------------------------------------------
+
+    const form = document.getElementById('waitlist-form') as HTMLFormElement;
+    const note = document.getElementById('waitlist-note') as HTMLParagraphElement;
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      form.hidden = true;
-      if (success) success.hidden = false;
+      const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+      note.classList.remove('error');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        note.textContent = T[lang].badEmail;
+        note.classList.add('error');
+        return;
+      }
+      submitBtn.disabled = true;
+      note.textContent = T[lang].sending;
+      try {
+        const res = await fetch(`${API_BASE}/api/subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, lang }),
+        });
+        if (!res.ok) throw new Error('failed');
+        form.reset();
+        note.textContent = T[lang].subOk;
+      } catch {
+        note.textContent = T[lang].subErr;
+        note.classList.add('error');
+      } finally {
+        submitBtn.disabled = false;
+      }
     });
+
+    // Initial language application (placeholders, direction already set inline)
+    applyLang();
   </script>
 </Base>
