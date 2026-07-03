@@ -145,7 +145,7 @@ async function handleTafsir(surah, ayah) {
 
 // --- Email (Resend) ----------------------------------------------------------
 
-async function sendEmail(apiKey, { to, subject, html, replyTo }) {
+async function sendEmail(apiKey, { to, subject, html, text, replyTo, headers }) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -157,7 +157,9 @@ async function sendEmail(apiKey, { to, subject, html, replyTo }) {
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
+      ...(text ? { text } : {}),
       ...(replyTo ? { reply_to: replyTo } : {}),
+      ...(headers ? { headers } : {}),
     }),
   });
   if (!res.ok) {
@@ -165,6 +167,31 @@ async function sendEmail(apiKey, { to, subject, html, replyTo }) {
     throw new Error(`Resend ${res.status}: ${detail}`);
   }
   return res.json();
+}
+
+// Plain-text alternative for the welcome email (major deliverability signal).
+function welcomeEmailText() {
+  return [
+    'أهلاً بك في رحلة التدبّر',
+    '',
+    'شكراً لانضمامك إلى قائمة الانتظار. سنخبرك فور إطلاق الإصدار الأول،',
+    'وستكون من أوائل من يجرّب المنصة — تفسيرٌ أصيل بقالبٍ حديث،',
+    'ليصل المعنى إلى القلب قبل العقل.',
+    '',
+    '— فريق تدبّر',
+    '',
+    '----------------------------------------',
+    '',
+    'Welcome to Tadabbur',
+    '',
+    'Thank you for joining the waitlist. We will let you know the moment',
+    'the first release launches, and you will be among the first to try it —',
+    'authentic tafsir in a modern form, so meaning reaches the heart before the mind.',
+    '',
+    '— The Tadabbur team',
+    '',
+    'tadabbur.tarteeb.pro',
+  ].join('\n');
 }
 
 function welcomeEmailHtml() {
@@ -217,11 +244,18 @@ async function handleSubscribe(request, env, origin) {
     return json({ error: 'invalid email' }, origin, 400);
   }
 
-  // 1) Welcome email to the registrant (bilingual).
+  // 1) Welcome email to the registrant (bilingual, with plain-text alternative,
+  //    a real reply-to, and a List-Unsubscribe header — all improve inbox placement).
   await sendEmail(apiKey, {
     to: email,
     subject: 'أهلاً بك في تدبّر · Welcome to Tadabbur',
     html: welcomeEmailHtml(),
+    text: welcomeEmailText(),
+    replyTo: 'salam@tarteeb.pro',
+    headers: {
+      'List-Unsubscribe': '<mailto:salam@tarteeb.pro?subject=unsubscribe>',
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    },
   });
 
   // 2) Notification to the site owner. Failure here shouldn't fail the request
