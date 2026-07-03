@@ -10,11 +10,15 @@ const ALLOWED_ORIGINS = new Set([
 // Curated set of tafsir sources shown to visitors (subset of the 28 available).
 const DISPLAY_SOURCES = ['tabary', 'katheer', 'baghawy', 'saadi', 'moyassar'];
 
+// Where waitlist notifications are sent, and who the welcome email comes from.
+const NOTIFY_TO = 'amer19hs@gmail.com';
+const FROM_EMAIL = 'Tadabbur <onboarding@resend.dev>'; // replace with your verified domain sender later
+
 function corsHeaders(origin) {
   const allow = ALLOWED_ORIGINS.has(origin) ? origin : 'https://amer-hassani.github.io';
   return {
     'Access-Control-Allow-Origin': allow,
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
   };
@@ -138,6 +142,103 @@ async function handleTafsir(surah, ayah) {
   );
 }
 
+// --- Email (Resend) ----------------------------------------------------------
+
+async function sendEmail(apiKey, { to, subject, html, replyTo }) {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: FROM_EMAIL,
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html,
+      ...(replyTo ? { reply_to: replyTo } : {}),
+    }),
+  });
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(`Resend ${res.status}: ${detail}`);
+  }
+  return res.json();
+}
+
+function welcomeEmailHtml() {
+  // Bilingual welcome — Arabic first (RTL), then English.
+  return `
+  <div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:560px;margin:0 auto;color:#23302a;">
+    <div style="background:linear-gradient(140deg,#1f6f52,#17553f);padding:32px 28px;border-radius:16px 16px 0 0;text-align:center;">
+      <div style="font-size:34px;color:#e0b354;font-family:Amiri,serif;font-weight:700;">تدبّر</div>
+    </div>
+    <div style="background:#fffdf7;padding:28px;border:1px solid #e2d7bf;border-top:none;border-radius:0 0 16px 16px;">
+      <div dir="rtl" style="text-align:right;line-height:1.9;">
+        <h2 style="color:#17553f;margin:0 0 12px;">أهلاً بك في رحلة التدبّر 🌿</h2>
+        <p style="color:#4a4638;margin:0 0 14px;">
+          شكراً لانضمامك إلى قائمة الانتظار. سنخبرك فور إطلاق الإصدار الأول،
+          وستكون من أوائل من يجرّب المنصة — تفسيرٌ أصيل بقالبٍ حديث، ليصل المعنى
+          إلى القلب قبل العقل.
+        </p>
+        <p style="color:#6b6455;margin:0;">— فريق تدبّر</p>
+      </div>
+      <hr style="border:none;border-top:1px solid #e2d7bf;margin:22px 0;" />
+      <div dir="ltr" style="text-align:left;line-height:1.7;">
+        <h2 style="color:#17553f;margin:0 0 12px;">Welcome to Tadabbur 🌿</h2>
+        <p style="color:#4a4638;margin:0 0 14px;">
+          Thank you for joining the waitlist. We'll let you know the moment the
+          first release launches, and you'll be among the first to try it —
+          authentic tafsir in a modern form, so meaning reaches the heart before
+          the mind.
+        </p>
+        <p style="color:#6b6455;margin:0;">— The Tadabbur team</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function handleSubscribe(request, env, origin) {
+  const apiKey = env.RESEND_API_KEY;
+  if (!apiKey) {
+    return json({ error: 'email service not configured' }, origin, 503);
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'invalid body' }, origin, 400);
+  }
+
+  const email = (body.email || '').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return json({ error: 'invalid email' }, origin, 400);
+  }
+
+  // 1) Welcome email to the registrant (bilingual).
+  await sendEmail(apiKey, {
+    to: email,
+    subject: 'أهلاً بك في تدبّر · Welcome to Tadabbur',
+    html: welcomeEmailHtml(),
+  });
+
+  // 2) Notification to the site owner. Failure here shouldn't fail the request
+  //    for the visitor, since their welcome already went out.
+  try {
+    await sendEmail(apiKey, {
+      to: NOTIFY_TO,
+      replyTo: email,
+      subject: `تسجيل جديد في قائمة الانتظار: ${email}`,
+      html: `<p>New waitlist signup:</p><p><strong>${email}</strong></p>`,
+    });
+  } catch (e) {
+    // swallow; owner notification is best-effort
+  }
+
+  return json({ ok: true }, origin);
+}
+
 export default {
   async fetch(request, env, ctx) {
     const origin = request.headers.get('Origin') || '';
@@ -148,6 +249,10 @@ export default {
     }
 
     try {
+      if (url.pathname === '/api/subscribe' && request.method === 'POST') {
+        return await handleSubscribe(request, env, origin);
+      }
+
       if (url.pathname === '/api/surahs') {
         return json(await handleSurahs(), origin);
       }
