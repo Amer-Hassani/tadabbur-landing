@@ -3,18 +3,19 @@
 
 const MCP_URL = 'https://mcp.tafsir.net/mcp';
 
-// Exact production/dev origins. Staging Pages preview URLs (*.tadabbur-d2o.pages.dev)
-// are matched by suffix in isAllowedOrigin() below.
+// Exact production/staging/dev origins. Pages preview URLs (*.tadabbur-d2o.pages.dev,
+// *.tadabbur-staging.pages.dev) are matched by suffix in isAllowedOrigin() below.
 const ALLOWED_ORIGINS = new Set([
   'https://tadabbur.tarteeb.pro',
+  'https://stg.tadabbur.tarteeb.pro',
   'https://amer-hassani.github.io',
   'http://localhost:4321',
 ]);
 
 function isAllowedOrigin(origin) {
   if (ALLOWED_ORIGINS.has(origin)) return true;
-  // Cloudflare Pages preview deployments for this project (staging branch, PR previews).
-  return /^https:\/\/[a-z0-9-]+\.tadabbur-d2o\.pages\.dev$/.test(origin);
+  // Cloudflare Pages preview deployments for either project (branch previews, PR previews).
+  return /^https:\/\/[a-z0-9-]+\.(tadabbur-d2o|tadabbur-staging)\.pages\.dev$/.test(origin);
 }
 
 // Curated set of tafsir sources shown to visitors (subset of the 28 available).
