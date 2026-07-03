@@ -13,7 +13,7 @@ const DISPLAY_SOURCES = ['tabary', 'katheer', 'baghawy', 'saadi', 'moyassar'];
 
 // Where waitlist notifications are sent, and who the welcome email comes from.
 const NOTIFY_TO = 'amer19hs@gmail.com';
-const FROM_EMAIL = 'Tadabbur تدبّر <salam@tarteeb.pro>'; // verified domain sender
+const FROM_EMAIL = 'Tadabbur تدبّر <salam@tarteeb.pro>'; // verified domain sender (Resend requires the exact verified domain)
 
 function corsHeaders(origin) {
   const allow = ALLOWED_ORIGINS.has(origin) ? origin : 'https://tadabbur.tarteeb.pro';
