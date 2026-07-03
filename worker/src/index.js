@@ -3,6 +3,7 @@
 
 const MCP_URL = 'https://mcp.tafsir.net/mcp';
 const ALLOWED_ORIGINS = new Set([
+  'https://tadabbur.tarteeb.pro',
   'https://amer-hassani.github.io',
   'http://localhost:4321',
 ]);
@@ -12,10 +13,10 @@ const DISPLAY_SOURCES = ['tabary', 'katheer', 'baghawy', 'saadi', 'moyassar'];
 
 // Where waitlist notifications are sent, and who the welcome email comes from.
 const NOTIFY_TO = 'amer19hs@gmail.com';
-const FROM_EMAIL = 'Tadabbur <onboarding@resend.dev>'; // replace with your verified domain sender later
+const FROM_EMAIL = 'Tadabbur تدبّر <salam@tarteeb.pro>'; // verified domain sender
 
 function corsHeaders(origin) {
-  const allow = ALLOWED_ORIGINS.has(origin) ? origin : 'https://amer-hassani.github.io';
+  const allow = ALLOWED_ORIGINS.has(origin) ? origin : 'https://tadabbur.tarteeb.pro';
   return {
     'Access-Control-Allow-Origin': allow,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
