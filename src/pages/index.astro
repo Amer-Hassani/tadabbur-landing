@@ -330,7 +330,10 @@ import Base from '../layouts/Base.astro';
   </footer>
 
   <script>
-    const API_BASE = 'https://tadabbur-tafsir-api.amer19hs.workers.dev';
+    // API base is chosen at build time: staging builds set PUBLIC_API_BASE to the
+    // staging Worker; production defaults to the production Worker.
+    const API_BASE =
+      import.meta.env.PUBLIC_API_BASE || 'https://tadabbur-tafsir-api.amer19hs.workers.dev';
     const EXAMPLE_SURAH = 94;
     const EXAMPLE_AYAH = 6;
 

@@ -2,11 +2,20 @@
 // Exposes plain JSON endpoints the static Astro site can call from the browser.
 
 const MCP_URL = 'https://mcp.tafsir.net/mcp';
+
+// Exact production/dev origins. Staging Pages preview URLs (*.tadabbur-d2o.pages.dev)
+// are matched by suffix in isAllowedOrigin() below.
 const ALLOWED_ORIGINS = new Set([
   'https://tadabbur.tarteeb.pro',
   'https://amer-hassani.github.io',
   'http://localhost:4321',
 ]);
+
+function isAllowedOrigin(origin) {
+  if (ALLOWED_ORIGINS.has(origin)) return true;
+  // Cloudflare Pages preview deployments for this project (staging branch, PR previews).
+  return /^https:\/\/[a-z0-9-]+\.tadabbur-d2o\.pages\.dev$/.test(origin);
+}
 
 // Curated set of tafsir sources shown to visitors (subset of the 28 available).
 const DISPLAY_SOURCES = ['tabary', 'katheer', 'baghawy', 'saadi', 'moyassar'];
@@ -16,12 +25,13 @@ const NOTIFY_TO = 'amer19hs@gmail.com';
 const FROM_EMAIL = 'Tadabbur تدبّر <salam@tarteeb.pro>'; // verified domain sender (Resend requires the exact verified domain)
 
 function corsHeaders(origin) {
-  const allow = ALLOWED_ORIGINS.has(origin) ? origin : 'https://tadabbur.tarteeb.pro';
+  const allow = isAllowedOrigin(origin) ? origin : 'https://tadabbur.tarteeb.pro';
   return {
     'Access-Control-Allow-Origin': allow,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
+    Vary: 'Origin',
   };
 }
 
@@ -244,11 +254,17 @@ async function handleSubscribe(request, env, origin) {
     return json({ error: 'invalid email' }, origin, 400);
   }
 
+  const isStaging = env.ENVIRONMENT === 'staging';
+  // On staging, NEVER email a real registrant. Route the welcome to the owner
+  // instead, so staging tests can't spam real people.
+  const welcomeTo = isStaging ? NOTIFY_TO : email;
+  const subjectPrefix = isStaging ? '[STAGING] ' : '';
+
   // 1) Welcome email to the registrant (bilingual, with plain-text alternative,
   //    a real reply-to, and a List-Unsubscribe header — all improve inbox placement).
   await sendEmail(apiKey, {
-    to: email,
-    subject: 'أهلاً بك في تدبّر · Welcome to Tadabbur',
+    to: welcomeTo,
+    subject: `${subjectPrefix}أهلاً بك في تدبّر · Welcome to Tadabbur`,
     html: welcomeEmailHtml(),
     text: welcomeEmailText(),
     replyTo: 'salam@tarteeb.pro',
@@ -264,8 +280,8 @@ async function handleSubscribe(request, env, origin) {
     await sendEmail(apiKey, {
       to: NOTIFY_TO,
       replyTo: email,
-      subject: `تسجيل جديد في قائمة الانتظار: ${email}`,
-      html: `<p>New waitlist signup:</p><p><strong>${email}</strong></p>`,
+      subject: `${subjectPrefix}تسجيل جديد في قائمة الانتظار: ${email}`,
+      html: `<p>${isStaging ? '<strong>[STAGING TEST]</strong> ' : ''}New waitlist signup:</p><p><strong>${email}</strong></p>`,
     });
   } catch (e) {
     // swallow; owner notification is best-effort
