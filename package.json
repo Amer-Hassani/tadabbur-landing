@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:staging": "astro build --mode staging",
     "preview": "astro preview"
   },
   "dependencies": {

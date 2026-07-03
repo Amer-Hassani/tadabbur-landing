@@ -1,6 +1,18 @@
+# Production is the top-level (default) environment.
 name = "tadabbur-tafsir-api"
 main = "src/index.js"
 compatibility_date = "2026-06-01"
 
 [observability]
 enabled = true
+
+[vars]
+ENVIRONMENT = "production"
+
+# Staging environment: `wrangler deploy --env staging` deploys a SEPARATE worker
+# named tadabbur-tafsir-api-staging with its own secrets.
+[env.staging]
+name = "tadabbur-tafsir-api-staging"
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
