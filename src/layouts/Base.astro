@@ -27,6 +27,12 @@ const base = import.meta.env.BASE_URL.endsWith('/')
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href={base + 'favicon.svg'} />
+    <link rel="manifest" href={base + 'manifest.webmanifest'} />
+    <meta name="theme-color" content="#1f6f52" id="theme-color-meta" />
+    <link rel="apple-touch-icon" href={base + 'icons/icon-192.png'} />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="تدبّر" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -62,6 +68,43 @@ const base = import.meta.env.BASE_URL.endsWith('/')
         { threshold: 0.12 }
       );
       document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+      // ===== Bottom nav: highlight active section =====
+      const navItems = document.querySelectorAll('.bottom-nav-item');
+      if (navItems.length) {
+        const sectionIds = ['hero', 'search', 'join'];
+        const sections = sectionIds
+          .map((id) => document.getElementById(id))
+          .filter((el) => el !== null);
+
+        const navObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const id = entry.target.id;
+                navItems.forEach((item) => {
+                  const isActive = item.getAttribute('data-target') === id;
+                  item.classList.toggle('active', isActive);
+                  if (isActive) item.setAttribute('aria-current', 'page');
+                  else item.removeAttribute('aria-current');
+                });
+              }
+            });
+          },
+          { rootMargin: '-45% 0px -45% 0px', threshold: 0 }
+        );
+        sections.forEach((el) => navObserver.observe(el));
+      }
+    </script>
+    <script define:vars={{ base }}>
+      // Register the service worker after load so it never delays first paint.
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register(base + 'sw.js').catch(() => {
+            // Non-fatal: site works fully without offline support.
+          });
+        });
+      }
     </script>
   </body>
 </html>

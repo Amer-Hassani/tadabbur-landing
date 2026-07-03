@@ -24,7 +24,7 @@ import Base from '../layouts/Base.astro';
 
   <main>
     <!-- Hero -->
-    <section class="hero">
+    <section class="hero" id="hero">
       <div class="container">
         <span class="eyebrow">
           <span data-lang-ar>منصة تفاعلية لتفسير القرآن الكريم</span>
@@ -80,7 +80,7 @@ import Base from '../layouts/Base.astro';
     </section>
 
     <!-- Free verse search -->
-    <section class="demo">
+    <section class="demo" id="search">
       <div class="container">
         <div class="section-head reveal">
           <h2>
@@ -238,6 +238,69 @@ import Base from '../layouts/Base.astro';
     </div>
   </footer>
 
+  <!-- ===== Mobile bottom nav ===== -->
+  <nav class="bottom-nav" id="bottom-nav" aria-label="Section navigation">
+    <a href="#hero" class="bottom-nav-item" data-target="hero" aria-current="page">
+      <span class="bottom-nav-icon" aria-hidden="true">⌂</span>
+      <span class="bottom-nav-label">
+        <span data-lang-ar>الرئيسية</span>
+        <span data-lang-en>Home</span>
+      </span>
+    </a>
+    <a href="#search" class="bottom-nav-item" data-target="search">
+      <span class="bottom-nav-icon" aria-hidden="true">⌕</span>
+      <span class="bottom-nav-label">
+        <span data-lang-ar>البحث</span>
+        <span data-lang-en>Search</span>
+      </span>
+    </a>
+    <a href="#join" class="bottom-nav-item" data-target="join">
+      <span class="bottom-nav-icon" aria-hidden="true">✉</span>
+      <span class="bottom-nav-label">
+        <span data-lang-ar>انضم</span>
+        <span data-lang-en>Join</span>
+      </span>
+    </a>
+  </nav>
+
+  <!-- ===== Install app banner (PWA) ===== -->
+  <div
+    class="install-banner"
+    id="install-banner"
+    role="region"
+    aria-live="polite"
+    aria-label="Install Tadabbur app"
+    hidden
+  >
+    <div class="install-banner-inner">
+      <span class="install-banner-icon" aria-hidden="true">تدبّر</span>
+      <div class="install-banner-text">
+        <span data-install-copy="default" hidden>
+          <span data-lang-ar>ثبّت تطبيق تدبّر على جهازك للوصول السريع.</span>
+          <span data-lang-en>Install the Tadabbur app for quick access.</span>
+        </span>
+        <span data-install-copy="ios" hidden>
+          <span data-lang-ar>لتثبيت التطبيق: اضغط زر المشاركة ⬆︎ ثم اختر «إضافة إلى الشاشة الرئيسية».</span>
+          <span data-lang-en>To install: tap Share ⬆︎, then choose "Add to Home Screen".</span>
+        </span>
+      </div>
+      <div class="install-banner-actions">
+        <button type="button" class="btn btn--gold install-banner-action" id="install-banner-action" hidden>
+          <span data-lang-ar>تثبيت</span>
+          <span data-lang-en>Install</span>
+        </button>
+        <button
+          type="button"
+          class="install-banner-dismiss"
+          id="install-banner-dismiss"
+          aria-label="Dismiss install banner"
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // API base is chosen at build time: staging builds set PUBLIC_API_BASE to the
     // staging Worker; production defaults to the production Worker.
@@ -303,6 +366,9 @@ import Base from '../layouts/Base.astro';
       root.setAttribute('data-theme', theme);
       const icon = document.querySelector('.theme-icon');
       if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+      // Keep the mobile browser chrome / status bar in sync with the active theme.
+      const themeMeta = document.getElementById('theme-color-meta');
+      if (themeMeta) themeMeta.setAttribute('content', theme === 'dark' ? '#4fb488' : '#1f6f52');
     }
 
     document.getElementById('lang-toggle')!.addEventListener('click', () => {
@@ -547,6 +613,120 @@ import Base from '../layouts/Base.astro';
         submitBtn.disabled = false;
       }
     });
+
+    // --- Install banner (PWA prompt) --------------------------------------
+
+    const INSTALL_DISMISS_KEY = 'tadabbur-install-dismissed';
+    const INSTALL_DONE_KEY = 'tadabbur-install-completed';
+    const DISMISS_DAYS = 14;
+
+    const installBanner = document.getElementById('install-banner') as HTMLDivElement | null;
+    const installAction = document.getElementById('install-banner-action') as HTMLButtonElement | null;
+    const installDismiss = document.getElementById('install-banner-dismiss') as HTMLButtonElement | null;
+
+    if (installBanner && installAction && installDismiss) {
+      let deferredInstallPrompt: any = null;
+
+      const isStandalone = () =>
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (navigator as any).standalone === true;
+
+      const isDismissedRecently = () => {
+        try {
+          const raw = localStorage.getItem(INSTALL_DISMISS_KEY);
+          if (!raw) return false;
+          const at = Number(raw);
+          if (Number.isNaN(at)) return false;
+          return (Date.now() - at) / (1000 * 60 * 60 * 24) < DISMISS_DAYS;
+        } catch {
+          return false;
+        }
+      };
+
+      const isAlreadyInstalled = () => {
+        try {
+          return localStorage.getItem(INSTALL_DONE_KEY) === '1';
+        } catch {
+          return false;
+        }
+      };
+
+      // Any iOS browser (all use WebKit, none fire beforeinstallprompt).
+      // Modern iPadOS reports as "Macintosh" with touch, so check for that too.
+      const isIos = () => {
+        const ua = navigator.userAgent;
+        const iDevice = /iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream;
+        const iPadOS = ua.includes('Macintosh') && navigator.maxTouchPoints > 1;
+        return (iDevice || iPadOS) && !isStandalone();
+      };
+
+      const rememberDismissal = () => {
+        try {
+          localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
+        } catch {}
+      };
+      const rememberInstalled = () => {
+        try {
+          localStorage.setItem(INSTALL_DONE_KEY, '1');
+        } catch {}
+      };
+
+      function showBanner(mode: 'default' | 'ios') {
+        if (isStandalone() || isAlreadyInstalled() || isDismissedRecently()) return;
+        installBanner!.querySelectorAll<HTMLElement>('[data-install-copy]').forEach((el) => {
+          el.hidden = el.dataset.installCopy !== mode;
+        });
+        installAction!.hidden = mode === 'ios';
+        installBanner!.hidden = false;
+        requestAnimationFrame(() => installBanner!.classList.add('is-visible'));
+      }
+
+      function hideBanner() {
+        installBanner!.classList.remove('is-visible');
+        // If there's no transition (e.g. reduced motion), transitionend may never
+        // fire, so also fall back to a timeout that matches the CSS duration.
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          installBanner!.hidden = true;
+        };
+        installBanner!.addEventListener('transitionend', finish, { once: true });
+        window.setTimeout(finish, 500);
+      }
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        showBanner('default');
+      });
+
+      installAction.addEventListener('click', async () => {
+        if (!deferredInstallPrompt) {
+          hideBanner();
+          return;
+        }
+        deferredInstallPrompt.prompt();
+        try {
+          await deferredInstallPrompt.userChoice;
+        } catch {}
+        deferredInstallPrompt = null;
+        hideBanner();
+      });
+
+      installDismiss.addEventListener('click', () => {
+        rememberDismissal();
+        hideBanner();
+      });
+
+      window.addEventListener('appinstalled', () => {
+        rememberInstalled();
+        hideBanner();
+      });
+
+      // iOS never fires beforeinstallprompt — show manual instructions instead.
+      if (isIos()) showBanner('ios');
+    }
 
     // Initial language application (placeholders, direction already set inline)
     applyLang();

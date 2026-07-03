@@ -771,3 +771,282 @@ em[data-lang-en] { display: none; }
   .trust .container { grid-template-columns: 1fr; gap: 2rem; }
   .verse-picker { grid-template-columns: 1fr; }
 }
+
+/* ===== Safe area (notch / home indicator) support ===== */
+/* Complements theme-color meta tag (handled separately for PWA status-bar
+   theming) — this only reserves layout space so content isn't obscured. */
+
+@supports (padding: max(0px)) {
+  .site-header {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* ===== Bottom nav (mobile only) ===== */
+
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  body {
+    /* keep space above the fixed bottom nav so the waitlist form/footer
+       are never covered */
+    padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
+  }
+
+  .bottom-nav {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 60;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+    padding-bottom: calc(0.4rem + env(safe-area-inset-bottom));
+  }
+
+  .bottom-nav-item {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    padding-block: 0.55rem;
+    min-height: 56px;
+    text-decoration: none;
+    color: var(--muted);
+    font-family: inherit;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .bottom-nav-item:active {
+    transform: scale(0.94);
+  }
+
+  .bottom-nav-icon {
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  .bottom-nav-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .bottom-nav-item.active {
+    color: var(--primary);
+  }
+
+  .bottom-nav-item.active .bottom-nav-icon {
+    color: var(--gold);
+  }
+}
+
+/* ===== Touch targets & spacing (mobile only) ===== */
+
+@media (max-width: 767px) {
+  .btn {
+    min-height: 48px;
+    width: 100%;
+    justify-content: center;
+    padding-inline: 1.5rem;
+  }
+
+  .header-actions .btn.header-cta {
+    width: auto;
+  }
+
+  .icon-btn {
+    min-width: 46px;
+    min-height: 46px;
+    height: 46px;
+  }
+
+  .level-tab {
+    min-height: 44px;
+    padding-inline: 1.25rem;
+  }
+
+  .surah-results li {
+    min-height: 48px;
+    padding-block: 0.75rem;
+  }
+
+  .picker-field input,
+  .picker-field select {
+    min-height: 48px;
+    font-size: 1rem; /* prevents iOS Safari auto-zoom on focus */
+  }
+
+  .waitlist-form input {
+    min-height: 48px;
+    flex-basis: 100%;
+  }
+
+  .waitlist-form .btn {
+    min-height: 48px;
+  }
+
+  /* More breathing room on cards, without over-inflating every box */
+  .demo-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .point,
+  .tier {
+    padding: 1.75rem 1.5rem;
+  }
+
+  .waitlist-card {
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+/* ===== Transitions / gestures (mobile refinements) ===== */
+/* Respects prefers-reduced-motion via the existing block above, which already
+   disables .reveal and .level-panel animations globally. */
+
+@media (max-width: 767px) {
+  .level-panel {
+    animation: panelIn 0.22s ease;
+  }
+
+  .level-tab {
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+
+  .level-tab:active {
+    transform: scale(0.96);
+  }
+
+  /* Dropdown slide/fade, CSS-only, still driven by the [hidden] attribute
+     that the existing JS toggles (surahResults.hidden = true/false).
+     [hidden] cuts display instantly so we animate via a paired transition
+     on the pre-hidden state using @starting-style where supported, and
+     fall back to a simple instant show elsewhere (no behavior break). */
+  .surah-results:not([hidden]) {
+    animation: dropdownIn 0.2s ease;
+  }
+
+  @keyframes dropdownIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ===== Install app banner (PWA) ===== */
+
+.install-banner {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 70;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  padding-inline-start: calc(1rem + env(safe-area-inset-left));
+  padding-inline-end: calc(1rem + env(safe-area-inset-right));
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -8px 30px var(--shadow);
+  transform: translateY(120%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.install-banner.is-visible {
+  transform: translateY(0);
+}
+
+/* When the bottom nav is present (mobile), lift the banner above it. */
+@media (max-width: 767px) {
+  .install-banner {
+    bottom: calc(4.25rem + env(safe-area-inset-bottom));
+    padding-bottom: 0.75rem;
+  }
+}
+
+.install-banner-inner {
+  max-width: 640px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.install-banner-icon {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.7rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: var(--gold-bright);
+  font-family: var(--font-quran, 'Amiri', serif);
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.install-banner-text {
+  flex: 1 1 auto;
+  font-size: 0.9rem;
+  color: var(--text, var(--ink));
+  line-height: 1.4;
+}
+
+.install-banner-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.install-banner-action {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  min-height: 40px;
+}
+
+.install-banner-dismiss {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.install-banner-dismiss:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+@media (max-width: 480px) {
+  .install-banner-text {
+    font-size: 0.82rem;
+  }
+  .install-banner-icon {
+    width: 2.1rem;
+    height: 2.1rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surah-results:not([hidden]) { animation: none; }
+  .bottom-nav-item { transition: none; }
+  .level-panel { animation: none; }
+  .level-tab { transition: none; }
+  .install-banner { transition: none; }
+}
