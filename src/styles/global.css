@@ -459,13 +459,65 @@ h2 {
   cursor: not-allowed;
 }
 
+/* Choose-only surah trigger — looks like the inputs/selects, opens the list. */
+.picker-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: start;
+  min-height: 48px;
+}
+
+.picker-trigger:hover {
+  border-color: var(--primary);
+}
+
+.picker-trigger[aria-expanded='true'] {
+  border-color: var(--primary);
+}
+
+.picker-trigger:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+.picker-trigger-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.picker-caret {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  transition: transform 0.2s ease;
+}
+
+.picker-trigger[aria-expanded='true'] .picker-caret {
+  transform: rotate(180deg);
+}
+
 .surah-results {
   position: absolute;
   z-index: 10;
   top: calc(100% + 0.35rem);
   inset-inline: 0;
-  max-height: 260px;
+  max-height: 320px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -485,7 +537,12 @@ h2 {
 }
 
 .surah-results li:hover { background: var(--primary-soft); }
-.surah-results .surah-meta { color: var(--muted); font-size: 0.82rem; }
+.surah-results li[aria-selected='true'] {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+.surah-results .surah-meta { color: var(--muted); font-size: 0.82rem; font-weight: 400; }
 
 .demo-hint {
   text-align: center;
