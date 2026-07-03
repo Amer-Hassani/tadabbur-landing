@@ -476,13 +476,32 @@ import Base from '../layouts/Base.astro';
     let currentVerse: VerseResponse | null = null;
     let preferredSource: string | null = null;
 
-    async function loadSurahs() {
+    let surahsLoading = false;
+
+    // The upstream tafsir server occasionally returns a transient 502. A single
+    // failed load would leave the surah picker permanently empty, so retry a few
+    // times with backoff before giving up, and let the user re-trigger by tapping.
+    async function loadSurahs(attempt = 0) {
+      if (surahsLoading || surahs.length) return;
+      surahsLoading = true;
+      const MAX_ATTEMPTS = 4;
       try {
         const res = await fetch(`${API_BASE}/api/surahs`);
         if (!res.ok) throw new Error('failed');
-        surahs = await res.json();
+        const data = await res.json();
+        if (!Array.isArray(data) || !data.length) throw new Error('empty');
+        surahs = data;
+        // If the list arrived while the box is focused, populate the dropdown now.
+        if (document.activeElement === surahSearch) renderSurahResults(surahSearch.value);
       } catch {
+        if (attempt < MAX_ATTEMPTS - 1) {
+          surahsLoading = false;
+          setTimeout(() => loadSurahs(attempt + 1), 800 * (attempt + 1));
+          return;
+        }
         verseState.innerHTML = `<p class="demo-hint">${T[lang].surahErr}</p>`;
+      } finally {
+        surahsLoading = false;
       }
     }
     loadSurahs();
@@ -504,8 +523,14 @@ import Base from '../layouts/Base.astro';
       surahResults.hidden = matches.length === 0;
     }
 
-    surahSearch.addEventListener('focus', () => renderSurahResults(surahSearch.value));
-    surahSearch.addEventListener('click', () => renderSurahResults(surahSearch.value));
+    function openSurahList() {
+      // If the list hasn't loaded yet (or a transient error left it empty),
+      // kick off another attempt so a tap can recover instead of showing nothing.
+      if (!surahs.length) loadSurahs();
+      renderSurahResults(surahSearch.value);
+    }
+    surahSearch.addEventListener('focus', openSurahList);
+    surahSearch.addEventListener('click', openSurahList);
     surahSearch.addEventListener('input', () => renderSurahResults(surahSearch.value));
     document.addEventListener('click', (e) => {
       if (!(e.target instanceof Node)) return;
