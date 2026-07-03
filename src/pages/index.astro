@@ -303,6 +303,7 @@ import Base from '../layouts/Base.astro';
     let surahs: Surah[] = [];
     let selectedSurah: Surah | null = null;
     let currentVerse: VerseResponse | null = null;
+    let preferredSource: string | null = null;
 
     async function loadSurahs() {
       try {
@@ -367,11 +368,16 @@ import Base from '../layouts/Base.astro';
       if (ayahNo) loadVerse(selectedSurah.surah_no, ayahNo);
     });
 
-    sourceSelect.addEventListener('change', () => {
-      if (!currentVerse) return;
-      const panel = verseState.querySelector(`[id^="panel-${sourceSelect.value}-"]`) as HTMLElement | null;
+    function showSourcePanel(source: string) {
+      const panel = verseState.querySelector(`[id^="panel-${source}-"]`) as HTMLElement | null;
       verseState.querySelectorAll('.level-panel').forEach((el) => ((el as HTMLElement).hidden = true));
       if (panel) panel.hidden = false;
+    }
+
+    sourceSelect.addEventListener('change', () => {
+      if (!currentVerse) return;
+      preferredSource = sourceSelect.value;
+      showSourcePanel(sourceSelect.value);
     });
 
     async function loadVerse(surah: number, ayah: number) {
@@ -384,10 +390,17 @@ import Base from '../layouts/Base.astro';
         currentVerse = data;
         renderVerseInto(verseState, data, selectedSurah?.name ?? String(surah), { showTabs: false });
 
+        // Keep the visitor's previously chosen tafsir source selected, if this verse has it.
+        const activeSource =
+          preferredSource && data.tafsirs.some((t) => t.source === preferredSource)
+            ? preferredSource
+            : data.tafsirs[0]?.source;
+
         sourceSelect.innerHTML = data.tafsirs
-          .map((t, i) => `<option value="${t.source}"${i === 0 ? ' selected' : ''}>${t.attribution.split('،')[0]}</option>`)
+          .map((t) => `<option value="${t.source}"${t.source === activeSource ? ' selected' : ''}>${t.attribution.split('،')[0]}</option>`)
           .join('');
         sourceField.hidden = false;
+        if (activeSource) showSourcePanel(activeSource);
       } catch {
         verseState.innerHTML = `<p class="demo-hint">تعذّر جلب الآية الآن. جرّب مرة أخرى بعد قليل.</p>`;
       }
