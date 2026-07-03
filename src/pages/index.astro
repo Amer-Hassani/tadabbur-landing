@@ -88,26 +88,32 @@ import Base from '../layouts/Base.astro';
             <span data-lang-en>Try it yourself</span>
           </h2>
           <p>
-            <span data-lang-ar>ابحث عن أي سورة، واختر أي آية، لتقرأ تفسيرها من المصادر نفسها.</span>
-            <span data-lang-en>Search any surah, pick any verse, and read its tafsir from the same sources.</span>
+            <span data-lang-ar>اختر أي سورة، ثم أي آية، لتقرأ تفسيرها من المصادر نفسها.</span>
+            <span data-lang-en>Pick any surah, then any verse, and read its tafsir from the same sources.</span>
           </p>
         </div>
         <div class="demo-card reveal">
           <div class="verse-picker">
             <div class="picker-field">
-              <label for="surah-search">
+              <label id="surah-label">
                 <span data-lang-ar>السورة</span><span data-lang-en>Surah</span>
               </label>
-              <input
-                type="text"
-                id="surah-search"
-                autocomplete="off"
+              <button
+                type="button"
+                id="surah-trigger"
+                class="picker-trigger"
+                aria-haspopup="listbox"
                 aria-expanded="false"
                 aria-controls="surah-results"
-                data-ph-ar="ابحث عن سورة… (مثل: البقرة)"
-                data-ph-en="Search a surah… (e.g. Al-Baqarah)"
-              />
-              <ul id="surah-results" class="surah-results" role="listbox" hidden></ul>
+                aria-labelledby="surah-label surah-trigger"
+              >
+                <span class="picker-trigger-text" id="surah-trigger-text">
+                  <span data-lang-ar>اختر سورة</span>
+                  <span data-lang-en>Choose a surah</span>
+                </span>
+                <span class="picker-caret" aria-hidden="true">▾</span>
+              </button>
+              <ul id="surah-results" class="surah-results" role="listbox" tabindex="-1" hidden></ul>
             </div>
             <div class="picker-field">
               <label for="ayah-select">
@@ -128,8 +134,8 @@ import Base from '../layouts/Base.astro';
 
           <div id="verse-state">
             <p class="demo-hint">
-              <span data-lang-ar>ابحث عن سورة، ثم اختر آية لعرض تفسيرها من مصادر موثوقة.</span>
-              <span data-lang-en>Search a surah, then pick a verse to see its tafsir from trusted sources.</span>
+              <span data-lang-ar>اختر سورة، ثم اختر آية لعرض تفسيرها من مصادر موثوقة.</span>
+              <span data-lang-en>Choose a surah, then pick a verse to see its tafsir from trusted sources.</span>
             </p>
           </div>
         </div>
@@ -462,9 +468,10 @@ import Base from '../layouts/Base.astro';
     }
     loadExample();
 
-    // --- Free search section -----------------------------------------------
+    // --- Verse picker (choose-only, no typing) ----------------------------
 
-    const surahSearch = document.getElementById('surah-search') as HTMLInputElement;
+    const surahTrigger = document.getElementById('surah-trigger') as HTMLButtonElement;
+    const surahTriggerText = document.getElementById('surah-trigger-text') as HTMLSpanElement;
     const surahResults = document.getElementById('surah-results') as HTMLUListElement;
     const ayahSelect = document.getElementById('ayah-select') as HTMLSelectElement;
     const sourceField = document.getElementById('source-field') as HTMLDivElement;
@@ -491,8 +498,9 @@ import Base from '../layouts/Base.astro';
         const data = await res.json();
         if (!Array.isArray(data) || !data.length) throw new Error('empty');
         surahs = data;
-        // If the list arrived while the box is focused, populate the dropdown now.
-        if (document.activeElement === surahSearch) renderSurahResults(surahSearch.value);
+        renderSurahList();
+        // If the list arrived while the menu is open, reveal it now.
+        if (surahTrigger.getAttribute('aria-expanded') === 'true') openSurahList();
       } catch {
         if (attempt < MAX_ATTEMPTS - 1) {
           surahsLoading = false;
@@ -506,35 +514,58 @@ import Base from '../layouts/Base.astro';
     }
     loadSurahs();
 
-    function renderSurahResults(query: string) {
-      const q = query.trim();
-      const matches = (
-        q ? surahs.filter((s) => s.name.includes(q) || String(s.surah_no) === q) : surahs
-      ).slice(0, q ? 8 : 20);
-      surahResults.innerHTML = matches
+    // Render ALL 114 surahs — no slicing, no filtering. Pure selection list.
+    function renderSurahList() {
+      surahResults.innerHTML = surahs
         .map(
           (s) =>
-            `<li role="option" data-surah="${s.surah_no}">
+            `<li role="option" data-surah="${s.surah_no}" aria-selected="${
+              selectedSurah?.surah_no === s.surah_no
+            }">
                <span>${s.surah_no}. ${s.name}</span>
                <span class="surah-meta">${s.ayah_count}</span>
              </li>`
         )
         .join('');
-      surahResults.hidden = matches.length === 0;
     }
 
     function openSurahList() {
       // If the list hasn't loaded yet (or a transient error left it empty),
-      // kick off another attempt so a tap can recover instead of showing nothing.
-      if (!surahs.length) loadSurahs();
-      renderSurahResults(surahSearch.value);
+      // kick off another attempt so opening can recover instead of showing nothing.
+      if (!surahs.length) {
+        loadSurahs();
+        return;
+      }
+      surahResults.hidden = false;
+      surahTrigger.setAttribute('aria-expanded', 'true');
+      // Scroll the currently-selected surah into view when reopening.
+      const active = surahResults.querySelector('li[aria-selected="true"]') as HTMLElement | null;
+      if (active) active.scrollIntoView({ block: 'nearest' });
     }
-    surahSearch.addEventListener('focus', openSurahList);
-    surahSearch.addEventListener('click', openSurahList);
-    surahSearch.addEventListener('input', () => renderSurahResults(surahSearch.value));
+
+    function closeSurahList() {
+      surahResults.hidden = true;
+      surahTrigger.setAttribute('aria-expanded', 'false');
+    }
+
+    surahTrigger.addEventListener('click', () => {
+      if (surahResults.hidden) openSurahList();
+      else closeSurahList();
+    });
+
     document.addEventListener('click', (e) => {
       if (!(e.target instanceof Node)) return;
-      if (!surahResults.contains(e.target) && e.target !== surahSearch) surahResults.hidden = true;
+      if (!surahResults.contains(e.target) && e.target !== surahTrigger && !surahTrigger.contains(e.target)) {
+        closeSurahList();
+      }
+    });
+
+    // Close on Escape for keyboard users.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !surahResults.hidden) {
+        closeSurahList();
+        surahTrigger.focus();
+      }
     });
 
     surahResults.addEventListener('click', (e) => {
@@ -544,8 +575,12 @@ import Base from '../layouts/Base.astro';
       selectedSurah = surahs.find((s) => s.surah_no === surahNo) ?? null;
       if (!selectedSurah) return;
 
-      surahSearch.value = selectedSurah.name;
-      surahResults.hidden = true;
+      // Reflect the choice on the trigger button (both languages) and close.
+      surahTriggerText.textContent = `${selectedSurah.surah_no}. ${selectedSurah.name}`;
+      surahTriggerText.removeAttribute('data-picked-fallback');
+      renderSurahList(); // refresh aria-selected highlight
+      closeSurahList();
+      surahTrigger.focus();
 
       ayahSelect.disabled = false;
       const word = T[lang].ayahWord;
